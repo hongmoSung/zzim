@@ -243,11 +243,13 @@ function reSearch (title, url, func) {
           } else {
             var img = $('#img_areas > a > img').attr('src');
             var itemName = $('p.goods_title').text().trim();
+            var itemPrice = $('.big_price').text().trim();
             var item = {
               'err' : false,
               'picUrl' : img,
               'pName' : itemName,
-              'crawlingUrl': url
+              'crawlingUrl': url,
+              'pLowest' : itemPrice
             };
             callback(null,item);
           }

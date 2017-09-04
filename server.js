@@ -21,7 +21,7 @@ require('date-utils');
 
 console.log('server 실행시간', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
 
-cron.schedule('* * * * *', function(){
+cron.schedule('0 */1 * * *', function(){
   console.log('~~~~~~~~~~~~~~~ running cron.schedule every second ~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
   db.selectAllProduct(function(err, result) {
     if(err) {
@@ -160,26 +160,24 @@ app.post("/login", function(req, res) {
   console.log("*********** login **********");
   var email = req.body.email;
   var password = req.body.password;
-  if(typeof email == 'undefined') {
-    db.selectUser(email, password, function(err, rows) {
-      if(err) {throw err;}
-      //console.log(rows);
-      if(rows) {
-        var email = rows[0].email;
-        //console.log('server에서 받은 email ::: ', email);
-        res.send({
-                    result:true,
-                    msg: email + '님 로그인 되었습니다.',
-                    email: email
-                  });
-      } else {
-        res.send({
-          result: false,
-          msg: 'email 또는 password를 확인해 주세요'
-        });
-      }
-    });
-  }
+  db.selectUser(email, password, function(err, rows) {
+    if(err) {throw err;}
+    //console.log(rows);
+    if(rows) {
+      var email = rows[0].email;
+      //console.log('server에서 받은 email ::: ', email);
+      res.send({
+                  result:true,
+                  msg: email + '님 로그인 되었습니다.',
+                  email: email
+                });
+    } else {
+      res.send({
+        result: false,
+        msg: 'email 또는 password를 확인해 주세요'
+      });
+    }
+  });
 });
 
 app.listen(3003, function(req, res) {
