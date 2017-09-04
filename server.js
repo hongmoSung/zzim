@@ -25,9 +25,9 @@ cron.schedule('* * * * *', function(){
   console.log('~~~~~~~~~~~~~~~ running cron.schedule every second ~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
   db.selectAllProduct(function(err, result) {
     if(err) {
-      console.log('#############실패#########################');
+      console.log('xxxxxxxxxxxxxxxxxxxxxxxxx실패xxxxxxxxxxxxxxxxxxxxxxxxx');
     }else {
-      console.log('#############성공#########################');
+      console.log('#########################성공#########################');
     }
   });
 });
@@ -51,7 +51,7 @@ app.post("/track", function(req, res) {
 });
 
 app.post("/addDB", function(req, res) {
-  console.log("************* addTracking server *************");
+  //console.log("************* addTracking server *************");
   var pName = req.body.pName;
   var notifyPrice = req.body.notifyPrice;
   var crawlingUrl = req.body.crawlingUrl;
@@ -68,8 +68,8 @@ app.post("/addDB", function(req, res) {
       var pNo = rows[0].pNo;
       console.log('이미 등록된 상품');
       // tracking 추가
-      db.checkTracking(email, pNo, function(err, result) {
-        if(result.result) {
+      db.checkTracking(email, pNo, function(err, rows) {
+        if(rows) {
           console.log('이미 트렉킹중인 제품');
           res.send({
           result: false,
@@ -156,7 +156,32 @@ app.post("/reSearch", function(req, res) {
   });
 });
 
+app.post("/login", function(req, res) {
+  console.log("*********** login **********");
+  var email = req.body.email;
+  var password = req.body.password;
+  if(typeof email == 'undefined') {
+    db.selectUser(email, password, function(err, rows) {
+      if(err) {throw err;}
+      //console.log(rows);
+      if(rows) {
+        var email = rows[0].email;
+        //console.log('server에서 받은 email ::: ', email);
+        res.send({
+                    result:true,
+                    msg: email + '님 로그인 되었습니다.',
+                    email: email
+                  });
+      } else {
+        res.send({
+          result: false,
+          msg: 'email 또는 password를 확인해 주세요'
+        });
+      }
+    });
+  }
+});
+
 app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
-
 });

@@ -8,57 +8,67 @@ code:`window.location.protocol + "//" + window.location.host + "/" + window.loca
   var newUrl = result[0];
 });
 */
-
+var email;
 // 확장 실행시 바로 실행되는 함수
 chrome.tabs.getSelected(null, function(tab){
   console.log('tab:::::::::::::::', tab.url);
   (function() {
-    console.log("즉시실행함수");
-    $.ajax({
-      type: 'post',
-      headers: {"Content-Type": "application/json; charset=UTF-8",
-      "X-HTTP-Method-Override": "POST" },
-      url: 'http://localhost:3003/track',
-      data: JSON.stringify({
-        url : tab.url
-      }),
-      datatype: 'text'
-    })
-    .done(function(result) {
-      if(result.err) {
-        alert('조회 실패!');
-        $('#reSearchDiv').css('display', 'block');
-      } else {
-        alert('조회성공!');
+    //console.log("즉시실행함수");
+    chrome.storage.sync.get(function(data) {
+        email = data.email;
+        console.log("chrome storage email = ", data.email);
+        if(typeof email == 'undefined') {
+          alert('로그인이 필요합니다.');
+          $('#loginDiv').css('display', 'block');
+        } else {
+          $.ajax({
+            type: 'post',
+            headers: {"Content-Type": "application/json; charset=UTF-8",
+            "X-HTTP-Method-Override": "POST" },
+            url: 'http://localhost:3003/track',
+            data: JSON.stringify({
+              url : tab.url
+            }),
+            datatype: 'text'
+          })
+          .done(function(result) {
+            if(result.err) {
+              alert('조회 실패!');
+              $('#reSearchDiv').css('display', 'block');
+            } else {
+              alert('조회성공!');
 
-        var p = result;
-        //console.log("info ::: ", p); 상품정보...
+              var p = result;
+              console.log("info ::: ", p);
 
-        // 성공시에 url 폼 숨기기
-        $("#urlDiv").css("display", "none");
-        html = "";
-        html += '<div class="image-tile outer-title text-center">';
-        html += "   <img src='" + p.picUrl +"' height='140px;'/>";
-        html += '   <div class="title">';
-        html += '     <h5 class="title">' + p.pName + '</h5>';
-        html += '   </div>';
-        html += '   <form class="text-left">';
-        html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
-        html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
-        //html += '     <input class="hollow" type="submit" onsubmit="return false;" value="Start tracking!!">';
-        //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
-        html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
-        html += '   </form>';
-        html += '</div>';
-        $("#productInfo").html(html);
-        $("#productInfo").css("display", "block");
-      }
+              // 성공시에 url 폼 숨기기
+              $("#urlDiv").css("display", "none");
+              html = "";
+              html += '<div class="image-tile outer-title text-center">';
+              html += "   <img src='" + p.picUrl +"' height='140px;'/>";
+              html += '   <div class="title">';
+              html += '     <h5 class="title">' + p.pName + '</h5>';
+              html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h5>';
+              html += '   </div>';
+              html += '   <form class="text-left">';
+              html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
+              html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
+              //html += '     <input class="hollow" type="submit" onsubmit="return false;" value="Start tracking!!">';
+              //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
+              html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
+              html += '   </form>';
+              html += '</div>';
+              $("#productInfo").html(html);
+              $("#productInfo").css("display", "block");
+            }
+          });
+        }
     });
+
   })();
 
-  ///////////////////
   $('button[name="reSearchBtn"]').click(function() {
-    console.log('재검색....');
+    //console.log('재검색....');
     var reSearchTitle = $('input[name="reSrachTitle"]').val();
     console.log(reSearchTitle);
     if(reSearchTitle == '') {
@@ -83,10 +93,8 @@ chrome.tabs.getSelected(null, function(tab){
         $('#reSearchDiv').css('display', 'block');
       } else {
         alert('조회성공!');
-
         var p = result;
         //console.log("info ::: ", p); 상품정보...
-
         // 성공시에 url 폼 숨기기
         $("#reSearchDiv").css("display", "none");
         html = "";
@@ -152,43 +160,6 @@ $('#productInfo').on("click", "#trackBtn", function() {
   return false;
 });
 
-// 재검색
-/*
-$('button[name="reSearchBtn"]').click(function() {
-  console.log('재검색....');
-  var reSearchTitle = $('input[name="reSrachTitle"]').val();
-  console.log(reSearchTitle);
-  if(reSearchTitle == '') {
-    alert('제목을 입력해주세요');
-    return;
-  }
-
-  $.ajax({
-    type: 'post',
-    headers: {"Content-Type": "application/json",
-          "X-HTTP-Method-Override": "POST" },
-    url: "http://localhost:3003/reSearch",
-    data: JSON.stringify({
-      reSearchTitle : reSearchTitle,
-      url : tab.url
-    }),
-    datatype: "text"
-  })
-  .done(function(result) {
-
-  });
-});
-*/
-$("button[name='loginFormBtn']").click(function() {
-  $("#urlDiv").css("display", "none");
-  $("#loginDiv").css("display", "block");
-});
-
-$("button[name='backBtn']").click(function() {
-  $("#urlDiv").css("display", "block");
-  $("#loginDiv").css("display", "none");
-});
-
 // 로그인
 $("button[name='loginBtn']").click(function() {
   var email = $("input[name='email']").val();
@@ -235,12 +206,4 @@ $(document).ajaxStart(function () {
 })
 .ajaxStop(function () {
 	$("body").waitMe("hide");
-});
-
-///////////////////////////////////////////////
-var email;
-
-chrome.storage.sync.get(function(data) {
-    email = data.email;
-    console.log("chrome storage email = ", data.email);
 });

@@ -72,7 +72,6 @@ function chase(url, func) {
         },
         function (url, callback) {
             client.fetch(url, {}, function (err, $, res) {
-              //console.log('$$$$$$$$$', $); 11
               if(url == 'err') {
                 console.log('에러 처리 ..................');
                 var item = {
@@ -82,11 +81,13 @@ function chase(url, func) {
               } else {
                 var img = $('#img_areas > a > img').attr('src');
                 var itemName = $('p.goods_title').text().trim();
+                var itemPrice = $('.big_price').text().trim();
                 var item = {
                   'err' : false,
                   'picUrl' : img,
                   'pName' : itemName,
-                  'crawlingUrl': url
+                  'crawlingUrl': url,
+                  'pLowest': itemPrice
                 };
                 callback(null,item);
               }
@@ -99,7 +100,6 @@ function chase(url, func) {
         else {
             func(result);
         }
-
     });
 };
 

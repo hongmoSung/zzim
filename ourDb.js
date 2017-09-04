@@ -40,7 +40,7 @@ function addMember(email, password, kakaoId, callback) {
 
 // 상품 추가
 function addProduct(data, callback) {
-  console.log('addProduct 호출됨');
+  //console.log('addProduct 호출됨');
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
@@ -75,7 +75,7 @@ function addProduct(data, callback) {
 
 // 상품 history 추가
 function addHistory(product, callback) {
-  console.log('addHistory 호출됨');
+  //console.log('addHistory 호출됨');
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
@@ -114,7 +114,7 @@ function addHistory(product, callback) {
 
 // 트레킹 추가
 function addTracking(email, pNo, notifyPrice, callback) {
-  console.log('addTracking 호출됨');
+  //console.log('addTracking 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -146,7 +146,7 @@ function addTracking(email, pNo, notifyPrice, callback) {
 }
 // 트레킹 체크
 function checkTracking(email, pNo, callback) {
-  console.log('checkTracking 호출됨');
+  //console.log('checkTracking 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -174,7 +174,7 @@ function checkTracking(email, pNo, callback) {
 
 // 상품 조회
 function selectProduct(pName, callback) {
-  console.log('selectProduct 호출됨');
+  //console.log('selectProduct 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -209,7 +209,7 @@ function selectProduct(pName, callback) {
 
 // 트렉킹 테이블 조회
 function selectTracking(pNo, callback) {
-  console.log('selectTracking 호출됨');
+  //console.log('selectTracking 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -222,11 +222,11 @@ function selectTracking(pNo, callback) {
                            [pNo], function(err, rows, fields) {
       conn.release();
       console.log('실행 대상 SQL : ' + exec.sql);
-
       if(rows.length > 0) {
         console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
       } else {
+        var err = {};
         console.log('일치하는 제품을 찾지 못함');
         callback(err, null);
       }
@@ -236,7 +236,7 @@ function selectTracking(pNo, callback) {
 
 // 상품 업데이트
 function updateProduct(newPrice, newPurl, pNo, callback) {
-  console.log('updateProduct 호출됨');
+  //console.log('updateProduct 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -262,7 +262,7 @@ function updateProduct(newPrice, newPurl, pNo, callback) {
 
 // 회원 로그인
 function selectUser(email, password, callback) {
-  console.log('selectUser 호출됨');
+  //console.log('selectUser 호출됨');
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
@@ -295,7 +295,7 @@ function selectUser(email, password, callback) {
 
 // 전체 상품 조회
 function selectAllProduct(callback) {
-  console.log('selectProduct 호출됨');
+  //console.log('selectProduct 호출됨');
   var newPrice = '';
   var oldPrice = '';
   var newPurl = '';
@@ -325,7 +325,6 @@ function selectAllProduct(callback) {
           oldPrice = a[i].pLowest;
           //
           tr.cronCrawling(a[i].crawlingUrl, function(err, product) {
-            //console.log('***************************************************');
             //console.log('@@@@@@@@@@@@@@@@@',  product);
             product.pNo = a[i].pNo;
             //console.log('가져온 가격 ::::::::::::', product.pLowest);
@@ -336,12 +335,12 @@ function selectAllProduct(callback) {
             addHistory(product, function(err, result) {
               //console.log(result);
               if(result) {
-                console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$ insert history success $$$$$$$$$$$$$$$$$$$$$$$$$$$');
+                //console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$ insert history success $$$$$$$$$$$$$$$$$$$$$$$$$$$');
                 if(newPrice != oldPrice) {
-                  console.log('가격을 수정합니다.');
+                  console.log('가격 변동으로 인해 수정합니다.');
                   updateProduct(newPrice, newPurl, pNo, function(err, result) {
                     if(result) {
-                      console.log('성공');
+                      console.log('가격 수정 성공');
                       ////////////////////////////////////
                       if(newPrice < oldPrice) {
                         selectTracking(pNo, function(err, rows) {
@@ -350,16 +349,17 @@ function selectAllProduct(callback) {
                             callback(err, null);
                           } else {
                             rows.forEach(function(row, i) {
-                              console.log('조회된 트레킹테이블 뒤지는중....');
+                              //console.log('조회된 트레킹테이블 뒤지는중....');
                               //console.log('notifyPrice ================= ', row.notifyPrice);
                               //console.log('pNo ================= ', row.pNo);
                               //console.log('email ================= ', row.email);
                               if(row.notifyPrice >= newPrice) {
                                 // 정욱이형 하세요.....
-                                console.log('고객이 원하는 가격에 달성했을시......');
-                                console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
+                                console.log('고객이 원하는 가격에 달성했음......');
+                                //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
                                 callback(null, result);
                               } else {
+                                console.log('고객이 원하는 가격에 달성못함......');
                                 callback(null, result);
                               }
                             });
@@ -369,7 +369,7 @@ function selectAllProduct(callback) {
                       ////////////////////////////////////
                       callback(null, result);
                     } else {
-                      console.log('실패');
+                      console.log('가격 수정 실패');
                       callback(err, null);
                     }
                   });
@@ -378,14 +378,12 @@ function selectAllProduct(callback) {
                   callback(null, result);
                 }
               } else {
-                console.log('크론템 실패 $$$$$$$$$$$$$$$$$$$$$$$$$$$');
+                console.log('addHistory 실패...');
                 callback(err, null);
               }
             });
-            //console.log('***************************************************');
           });
       	});
-        //console.log(a);
       } else {
         console.log('찾지 못함....');
         callback(err, null);
