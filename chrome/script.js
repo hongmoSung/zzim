@@ -48,7 +48,7 @@ chrome.tabs.getSelected(null, function(tab){
               html += "   <img src='" + p.picUrl +"' height='140px;'/>";
               html += '   <div class="title">';
               html += '     <h5 class="title">' + p.pName + '</h5>';
-              html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h5>';
+              html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
               html += '   </div>';
               html += '   <form class="text-left">';
               html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
@@ -102,6 +102,7 @@ chrome.tabs.getSelected(null, function(tab){
         html += "   <img src='" + p.picUrl +"' height='140px;'/>";
         html += '   <div class="title">';
         html += '     <h5 class="title">' + p.pName + '</h5>';
+        html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
         html += '   </div>';
         html += '   <form class="text-left">';
         html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
