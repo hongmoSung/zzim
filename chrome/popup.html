@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>zzim</title>
+  </head>
+  <body style="padding: 10px;">
+    <div class="center-block feature bordered text-center" style="width: 300px;">
+      <h1 class="large uppercase">zzim</h1>
+
+      <div id="loginDiv" style="display: none;">
+        <button type="button" name="backBtn">뒤로가기</button>
+        <form method="post">
+          email <input type="text" name="email"><br>
+          password <input type="text" name="password"><br>
+          <button type="button" name="loginBtn">로그인</button>
+        </form>
+      </div>
+
+      <div id="productInfo" style="display: none;"></div>
+      <div class="image-tile outer-title text-center" style="display: none;" id="reSearchDiv">
+        <h5>일치하는 상품이 없습니다.</h5>
+        <h5>정확한 상품명을 입력해주세요</h5>
+        <form method="post" class="text-left">
+          상품명 : <input type="text" name="reSrachTitle" placeholder="ex) 삼성 노트북9 NT900X5L-K24W">
+          <button type="button" name="reSearchBtn" class="btn btn-lg btn-filled">검색하기</button>
+        </form>
+      </div>
+
+      <script src="jquery-3.2.1.min.js"></script>
+      <script src="waitMe.js"></script>
+      <script src="sweetalert2.min.js"></script>
+      <script src="bootstrap.min.js"></script>
+      <script src="handlebars.runtime-v4.0.10.js"></script>
+      <link rel="stylesheet" href="waitMe.css">
+      <link rel="stylesheet" href="bootstrap.min.css">
+      <link rel="stylesheet" href="sweetalert2.min.css">
+      <link rel="stylesheet" href="custom.css">
+      <link rel="stylesheet" href="theme.css">
+      <link rel="stylesheet" href="themify-icons.css">
+      <script src="script.js"></script>
+    </div>
+  </body>
+</html>

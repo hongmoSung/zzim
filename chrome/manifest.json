@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+
+  "name": "zzim",
+  "description": "crawring project",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "https://ajax.googleapis.com/",
+    "http://*/",
+    "<all_urls>",
+    "storage",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://www.google.com/*"],
+      "css": ["waitMe.css", "sweetalert2.min.css", "bootstrap.min.css"],
+      "js": ["script.js", "waitMe.js", "sweetalert2.min.js", "bootstrap.min.js"],
+      "svg": ["img.svg"]
+    }
+  ]
+}
