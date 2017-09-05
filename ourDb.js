@@ -3,10 +3,10 @@ var tr = require('./track.js');
 
 var pool = mysql.createPool({
     connectionLimit : 10,
-    host : 'localhost',
-    user : 'hobby',
+    host : '192.168.0.11',
+    user : 'server',
     password : 'password',
-    database : 'hobby',
+    database : 'server',
     debug : false
 });
 
