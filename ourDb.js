@@ -275,7 +275,7 @@ function selectUser(email, callback) {
 
     //var exec = conn.query('select ?? from ?? where email = ?',
     //                      [columns, tableName, email], function(err, rows, fields) {
-    var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "zoo") as password from tbl_user where email = ?',
+    var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "aes") as password from tbl_user where email = ?',
                           [email], function(err, rows, fields) {
       conn.release();
       console.log('실행 대상 SQL : ' + exec.sql);
