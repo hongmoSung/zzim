@@ -15,7 +15,7 @@ var setUserCookies = function () {
 }
 
 var setCookies = function (email) {
-    var sql = "select * from tbl_logindata where email = ?";
+    var sql = "select email, website, websiteId, AES_DECRYPT(UNHEX(websitePw), 'aes') as websitePw from tbl_logindata where email = ?";
     var websiteList = {};
     var task = [
         function (callback) {
@@ -232,10 +232,11 @@ var setWebsiteCookies = function(loginData,CBfunc){
             driver.quit();
 
         }, function (loginData, webCookies,callback) {
-            var sql = "insert into tbl_loginData (email, website, websiteId, websitePw) values (?,?,?,?)";
+            var sql = "insert into tbl_loginData (email, website, websiteId, websitePw) values (?,?,?,HEX(AES_ENCRYPT(?,'aes')))";
             con.query(sql, [loginData.email, loginData.website, loginData.websiteId, loginData.websitePw], function (err, result) {
                 if (err) {
                     console.log("insert logindata err");
+                    console.log(err);
                     next = false;
                     callback(null,null,null);
                 } else {
