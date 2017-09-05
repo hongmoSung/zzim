@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
+
 var pool = mysql.createPool({
     connectionLimit : 10,
     host : '192.168.0.11',
@@ -121,40 +122,6 @@ function checkTracking(email, pNo, callback) {
     });
   });
 }
-
-// 상품 조회
-function selectProduct(pName, callback) {
-  //console.log('selectProduct 호출됨');
-  pool.getConnection(function(err, conn) {
-    if(err) {
-      conn.release();
-      return;
-    }
-    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var columns = ['pNo'];
-    var tableName = 'tbl_product';
-
-    var exec = conn.query('select ?? from ?? where pName = ?',
-                          [columns, tableName, pName], function(err, rows, fields) {
-      conn.release();
-      //console.log('실행 대상 SQL : ' + exec.sql);
-
-      if(rows.length > 0) {
-        //console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
-        rows.forEach(function (row, i) {
-          //result = {"pNo": row.pNo, "productChk": "success"};
-          //console.log("db에서의 result", result);
-          callback(null, rows);
-      	});
-      } else {
-        console.log('일치하는 제품을 찾지 못함');
-        //result = {"productChk": "fail"};
-        callback(err, null);
-      }
-    });
-  });
-}
-
 // 트렉킹 테이블 조회
 function selectTracking(pNo, callback) {
   //console.log('selectTracking 호출됨');
@@ -170,11 +137,11 @@ function selectTracking(pNo, callback) {
       conn.release();
       //console.log('실행 대상 SQL : ' + exec.sql);
       if(rows.length > 0) {
-        console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
+        //console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
       } else {
         var err = {};
-        console.log('일치하는 제품을 찾지 못함');
+        console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
         callback(err, null);
       }
     });
@@ -338,10 +305,7 @@ function selectAllProduct(callback) {
   });
 }
 
-
-//module.exports.addMember = addMember;
 module.exports.addProduct = addProduct;
-module.exports.selectProduct = selectProduct;
 module.exports.addTracking = addTracking;
 module.exports.checkTracking = checkTracking;
 module.exports.selectUser = selectUser;

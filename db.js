@@ -6,7 +6,6 @@ var con = mysql.createConnection({
     password:"sb",
     database: "web"
 });
-
 con.connect(function(err){
     if(err) throw  err;
     console.log("db connected");
