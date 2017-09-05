@@ -14,6 +14,7 @@ function cartCrawling(email, func) {
                 rows.forEach(function (row, i) {
                     websiteList[row.website] = row;
                 });
+
                 callback(null);
             });
         }
@@ -69,6 +70,8 @@ function cartCrawling(email, func) {
                         callback(null, result11);
                     }
                 });
+            }else{
+                callback(null);
             }
         },
         function (callback) {
@@ -117,6 +120,8 @@ function cartCrawling(email, func) {
                         callback(null, resultA);
                     }
                 });
+            }else{
+                callback(null);
             }
         },
         function (callback) {
@@ -146,7 +151,7 @@ function cartCrawling(email, func) {
                             var parentEl = $(this).parent();
                             cPic = parentEl.find('td.prd_img > table > tbody > tr > td > a > img').attr('src');
                             cPrice = parentEl.find('td.prd_title + td + td > div > b').text();
-                            cCount = parentEl.find('td.prd_title + td + td + td + td > table > tbody > tr > td > table > tbody > tr > td > input').text();
+                            cCount = parentEl.find('td.prd_title + td + td + td + td > table > tbody > tr > td > table > tbody > tr > td > input').val();
                             cDelivery = parentEl.find('td.prd_title + td +td +td +td +td +td > table > tbody > tr > td').text();
 
                             var item = {
@@ -165,6 +170,8 @@ function cartCrawling(email, func) {
                         callback(null, resultInter);
                     }
                 });
+            }else{
+                callback(null);
             }
         },
         function (callback) {
@@ -186,7 +193,6 @@ function cartCrawling(email, func) {
                         var strContents = new Buffer(body);
                         body = iconv.decode(strContents, 'utf8').toString();
                         var temp1 = body.split('JSON.parse(JSON.stringify(');
-                        console.log(temp1.length);
                         var strObj = temp1[1].split('))')[0];
                         var dataObj = JSON.parse(strObj);
                         //console.log(dataObj);
@@ -217,6 +223,8 @@ function cartCrawling(email, func) {
                         callback(null, resultG);
                     }
                 });
+            }else{
+                callback(null);
             }
         }
     ];
@@ -224,6 +232,8 @@ function cartCrawling(email, func) {
     async.waterfall(task, function (err) {
         if (err) console.log("err");
         else {
+            console.log("waterfall done");
+            //console.log(websiteList);
             async.parallel(task2, function (err, result) {
                 if (err) console.log(err);
                 else func(result);

@@ -1,41 +1,20 @@
 var express = require('express');
 var app = express();
-var qs = require('queryString');
 var bodyParser = require('body-parser');
-//var expressSession = require('express-session');
-//const cheerio = require('cheerio');
-//var request = require('request');
-//
-//var selenium = require('./selenium.js');
-// crawling
-//var cw = require('./crawling.js');
-
-// 데이터 베이스
+var cron = require('./cron');
 var db = require('./ourDb.js');
-// 트렉킹
 var tr = require('./track.js');
-// 크론
-var cron = require('node-cron');
-// 날짜
-require('date-utils');
-// AES 알고리즘
 var CryptoJS = require("crypto-js");
-
-console.log('server 실행시간', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
-cron.schedule('* * * * *', function(){
-  console.log('~~~~~~~~~~~~~~~ running cron.schedule every second ~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
-  db.selectAllProduct(function(err, result) {
-    if(err) {
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxxx실패xxxxxxxxxxxxxxxxxxxxxxxxx');
-    } else {
-      console.log('#########################성공#########################');
-    }
-  });
-});
+var cart = require('./cart');
+var setCookies = require('./setUserCookies');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.post("/track", function(req, res) {
   var url = req.body.url;
   tr.chase(url, function(result) {
@@ -43,6 +22,27 @@ app.post("/track", function(req, res) {
   });
 });
 
+app.post('/cart', function (request, response) {
+    var email = request.body.email;
+    console.log("/cart :: email ::",email);
+    cart.cartCrawling(email, function (result) {
+        console.log(result);
+        response.status(200).json(result);
+    });
+});
+app.post('/checkEmail',function(request,response){
+    var loginData = {
+        email :  request.body.email,
+        website : request.body.website,
+        websiteId : request.body.websiteId,
+        websitePw : request.body.websitePw
+    }
+    console.log(loginData);
+    setCookies.setWebsiteCookies(loginData,function(result){
+        console.log("result:::",result);
+        response.status(200).json({"result":result});
+    })
+});
 app.post("/addDB", function(req, res) {
   //console.log("************* addTracking server *************");
   var pName = req.body.pName;
@@ -185,4 +185,5 @@ app.post("/login", function(req, res) {
 
 app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
+    cron.batch();
 });
