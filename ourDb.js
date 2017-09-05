@@ -9,35 +9,6 @@ var pool = mysql.createPool({
     debug : false
 });
 
-
-/*
-function addMember(email, password, kakaoId, callback) {
-  console.log('addMember 호출됨');
-  pool.getConnection(function(err, conn) {
-    if(err) {
-      conn.release();
-      return;
-    }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
-    var data = {email:email, password:password, kakaoId:kakaoId};
-
-    var exec = conn.query('insert into tbl_user set ?', data, function(err, result) {
-      conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
-
-      if(err) {
-        console.log('SQL 실행 시 오류 발생함.');
-        console.dir(err);
-        callback(err, null);
-        return;
-      }
-      callback(null, result);
-    });
-  });
-}
-*/
-
 // 상품 추가
 function addProduct(data, callback) {
   //console.log('addProduct 호출됨');
@@ -46,20 +17,11 @@ function addProduct(data, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    /*
-    var data = {
-                  pName:pName,
-                  pUrl:pUrl,
-                  pLowest:pLowest,
-                  picUrl:picUrl,
-                  crawlingUrl: crawlingUrl
-                };
-    */
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
 
     var exec = conn.query('insert into tbl_product set ?', data, function(err, result) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(err) {
         console.log('SQL 실행 시 오류 발생함.');
@@ -81,23 +43,14 @@ function addHistory(product, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    /*
-    var data = {
-                  pName:pName,
-                  pUrl:pUrl,
-                  pLowest:pLowest,
-                  picUrl:picUrl,
-                  crawlingUrl: crawlingUrl
-                };
-    */
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var data = {
       pNo: product.pNo,
       currPrice: product.pLowest
     }
     var exec = conn.query('insert into tbl_price_history set ?', data, function(err, result) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
       //console.log('@@@@@@@@@@@@@@@@@@@@@@ result @@@@@@@@@@@@@@@@@@@@@@ ', result);
       if(err) {
         console.log('SQL 실행 시 오류 발생함.');
@@ -115,14 +68,12 @@ function addHistory(product, callback) {
 // 트레킹 추가
 function addTracking(email, pNo, notifyPrice, callback) {
   //console.log('addTracking 호출됨');
-
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var data = {
                   email: email,
                   pNo: pNo,
@@ -131,7 +82,7 @@ function addTracking(email, pNo, notifyPrice, callback) {
 
     var exec = conn.query('insert into tbl_tracking set ?', data, function(err, result) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(err) {
         console.log('SQL 실행 시 오류 발생함.');
@@ -153,11 +104,10 @@ function checkTracking(email, pNo, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var exec = conn.query('select * from  tbl_tracking where email =  ? and pNo = ?', [email, pNo], function(err, rows) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(rows.length > 0) {
         console.log('일치하는 상품 찾음.');
@@ -175,24 +125,22 @@ function checkTracking(email, pNo, callback) {
 // 상품 조회
 function selectProduct(pName, callback) {
   //console.log('selectProduct 호출됨');
-
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var columns = ['pNo'];
     var tableName = 'tbl_product';
 
     var exec = conn.query('select ?? from ?? where pName = ?',
                           [columns, tableName, pName], function(err, rows, fields) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(rows.length > 0) {
-        console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
+        //console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
         rows.forEach(function (row, i) {
           //result = {"pNo": row.pNo, "productChk": "success"};
           //console.log("db에서의 result", result);
@@ -216,12 +164,11 @@ function selectTracking(pNo, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var exec = conn.query('select * from tbl_tracking where pNo = ?',
                            [pNo], function(err, rows, fields) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
       if(rows.length > 0) {
         console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
@@ -243,10 +190,10 @@ function updateProduct(newPrice, newPurl, pNo, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var exec = conn.query('update tbl_product set pLowest = ?, pUrl = ? where pNo = ?;', [newPrice, newPurl, pNo], function(err, result) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(err) {
         console.log('SQL 실행 시 오류 발생함.');
@@ -268,17 +215,11 @@ function selectUser(email, callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
-    //var columns = ['email', 'AES_DECRYPT(UNHEX(password), "zoo") as password'];
-    //var tableName = 'tbl_user';
-
-    //var exec = conn.query('select ?? from ?? where email = ?',
-    //                      [columns, tableName, email], function(err, rows, fields) {
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "aes") as password from tbl_user where email = ?',
                           [email], function(err, rows, fields) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(rows.length > 0) {
         console.log('email [%s] 과 일치하는 사용자 찾음.', email);
@@ -311,18 +252,17 @@ function selectAllProduct(callback) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var columns = ['pNo', 'pLowest', 'crawlingUrl'];
     var tableName = 'tbl_product';
 
     var exec = conn.query('select ?? from ??',
                           [columns, tableName], function(err, rows, fields) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
       var a = [];
       if(rows.length > 0) {
-        console.log('tbl_product 조회 성공...');
+        //console.log('tbl_product 조회 성공...');
         rows.forEach(function (row, i) {
           a[i] = row;
           //console.log(a[i].crawlingUrl);
@@ -343,15 +283,15 @@ function selectAllProduct(callback) {
               if(result) {
                 //console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$ insert history success $$$$$$$$$$$$$$$$$$$$$$$$$$$');
                 if(newPrice != oldPrice) {
-                  console.log('가격 변동으로 인해 수정합니다.');
+                  //console.log('가격 변동으로 인해 수정합니다.');
                   updateProduct(newPrice, newPurl, pNo, function(err, result) {
                     if(result) {
-                      console.log('가격 수정 성공');
+                      //console.log('가격 수정 성공');
                       ////////////////////////////////////
                       if(newPrice < oldPrice) {
                         selectTracking(pNo, function(err, rows) {
                           if(err) {
-                            console.log('트렉킹테이블 조회시 오류.........');
+                            console.log('selectTracking err');
                             callback(err, null);
                           } else {
                             rows.forEach(function(row, i) {
@@ -361,11 +301,11 @@ function selectAllProduct(callback) {
                               //console.log('email ================= ', row.email);
                               if(row.notifyPrice >= newPrice) {
                                 // 정욱이형 하세요.....
-                                console.log('고객이 원하는 가격에 달성했음......');
+                                //console.log('고객이 원하는 가격에 달성했음......');
                                 //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
                                 callback(null, result);
                               } else {
-                                console.log('고객이 원하는 가격에 달성못함......');
+                                //console.log('고객이 원하는 가격에 달성못함......');
                                 callback(null, result);
                               }
                             });
@@ -375,23 +315,23 @@ function selectAllProduct(callback) {
                       ////////////////////////////////////
                       callback(null, result);
                     } else {
-                      console.log('가격 수정 실패');
+                      console.log('updateProduct err');
                       callback(err, null);
                     }
                   });
                 } else {
-                  console.log('가격변동이 없습니다.');
+                  //console.log('가격변동이 없습니다.');
                   callback(null, result);
                 }
               } else {
-                console.log('addHistory 실패...');
+                console.log('addHistory err');
                 callback(err, null);
               }
             });
           });
       	});
       } else {
-        console.log('찾지 못함....');
+        console.log('selectAllProduct err');
         callback(err, null);
       }
     });

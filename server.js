@@ -101,9 +101,11 @@ app.post("/addDB", function(req, res) {
       tr.track(crawlingUrl, function(err, result) {
         var data = result;
         db.addProduct(data, function(err, result) {
-          if(err) {throw err;}
+          if(err) {
+            console.log('addProduct err');
+          }
           if(result) {
-            console.log("상품등록 성공");
+            //console.log("상품등록 성공");
             db.selectProduct(pName, function(err, rows) {
               var pNo = rows[0].pNo;
               if(rows) {
