@@ -16,32 +16,25 @@ var db = require('./ourDb.js');
 var tr = require('./track.js');
 // 크론
 var cron = require('node-cron');
-//
+// 날짜
 require('date-utils');
+// AES 알고리즘
+var CryptoJS = require("crypto-js");
 
 console.log('server 실행시간', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
-
-cron.schedule('0 */1 * * *', function(){
+cron.schedule('* * * * *', function(){
   console.log('~~~~~~~~~~~~~~~ running cron.schedule every second ~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
   db.selectAllProduct(function(err, result) {
     if(err) {
       console.log('xxxxxxxxxxxxxxxxxxxxxxxxx실패xxxxxxxxxxxxxxxxxxxxxxxxx');
-    }else {
+    } else {
       console.log('#########################성공#########################');
     }
   });
 });
 
-//jade 설정
-//app.locals.pretty = true;
-//app.set('view engine', 'jade');
-//app.set('views', 'views');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
-app.get('/', function (req, res) {
-  console.log('server start');
-})
 
 app.post("/track", function(req, res) {
   var url = req.body.url;
@@ -157,24 +150,34 @@ app.post("/reSearch", function(req, res) {
 });
 
 app.post("/login", function(req, res) {
-  console.log("*********** login **********");
-  var email = req.body.email;
-  var password = req.body.password;
-  db.selectUser(email, password, function(err, rows) {
+  var inputEmail = req.body.email;
+  var inputPW = req.body.password;
+  db.selectUser(inputEmail, function(err, rows) {
     if(err) {throw err;}
-    //console.log(rows);
     if(rows) {
       var email = rows[0].email;
-      //console.log('server에서 받은 email ::: ', email);
-      res.send({
-                  result:true,
-                  msg: email + '님 로그인 되었습니다.',
-                  email: email
-                });
+      var password = rows[0].password;
+      //console.log('::::::::::::::::::::::::::::', password.toString());
+      var result = (inputPW == password.toString());
+      //console.log('result::::::::::::::::::::::::::::', result);
+      if(result) {
+        res.send({
+          result:true,
+          msg: email + '님 로그인 되었습니다.',
+          email: email
+        });
+      } else {
+        res.send({
+          result: false,
+          msg: 'password를 확인해 주세요'
+        });
+      }
+      /*
+      */
     } else {
       res.send({
         result: false,
-        msg: 'email 또는 password를 확인해 주세요'
+        msg: '등록되지 않은 email 입니다.'
       });
     }
   });

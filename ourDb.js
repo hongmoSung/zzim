@@ -1,6 +1,5 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
-
 var pool = mysql.createPool({
     connectionLimit : 10,
     host : '192.168.0.11',
@@ -9,6 +8,7 @@ var pool = mysql.createPool({
     database : 'server',
     debug : false
 });
+
 
 /*
 function addMember(email, password, kakaoId, callback) {
@@ -261,7 +261,7 @@ function updateProduct(newPrice, newPurl, pNo, callback) {
 }
 
 // 회원 로그인
-function selectUser(email, password, callback) {
+function selectUser(email, callback) {
   //console.log('selectUser 호출됨');
   pool.getConnection(function(err, conn) {
     if(err) {
@@ -270,19 +270,25 @@ function selectUser(email, password, callback) {
     }
     console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
 
-    var columns = ['email', 'password'];
-    var tableName = 'tbl_user';
+    //var columns = ['email', 'AES_DECRYPT(UNHEX(password), "zoo") as password'];
+    //var tableName = 'tbl_user';
 
-    var exec = conn.query('select ?? from ?? where email = ? and password = ?',
-                          [columns, tableName, email, password], function(err, rows, fields) {
+    //var exec = conn.query('select ?? from ?? where email = ?',
+    //                      [columns, tableName, email], function(err, rows, fields) {
+    var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "zoo") as password from tbl_user where email = ?',
+                          [email], function(err, rows, fields) {
       conn.release();
       console.log('실행 대상 SQL : ' + exec.sql);
 
       if(rows.length > 0) {
-        console.log('email [%s], password [%s] 가 일치하는 사용자 찾음.', email, password);
+        console.log('email [%s] 과 일치하는 사용자 찾음.', email);
         rows.forEach(function (row, i) {
-          result = {"email": row.email, "loginChk": "success"};
-          console.log("db에서의 result", result);
+          result = {
+                      "email": row.email,
+                      "password": row.password,
+                      "loginChk": "success"
+                    };
+          //console.log("db에서의 result", result);
           callback(null, rows);
       	});
       } else {

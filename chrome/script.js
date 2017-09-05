@@ -16,7 +16,7 @@ chrome.tabs.getSelected(null, function(tab){
     //console.log("즉시실행함수");
     chrome.storage.sync.get(function(data) {
         email = data.email;
-        console.log("chrome storage email = ", data.email);
+        console.log("chrome storage email == ", data.email);
         if(typeof email == 'undefined') {
           alert('로그인이 필요합니다.');
           $('#loginDiv').css('display', 'block');
@@ -57,6 +57,7 @@ chrome.tabs.getSelected(null, function(tab){
               //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
               html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
               html += '   </form>';
+              html += '     <button type="button" class="btn btn-lg btn-filled" id="goToLogin">아이디 재설정</button>';
               html += '</div>';
               $("#productInfo").html(html);
               $("#productInfo").css("display", "block");
@@ -166,8 +167,12 @@ $("button[name='loginBtn']").click(function() {
   var email = $("input[name='email']").val();
   var password = $("input[name='password']").val();
 
-  if(email == "" || password == "") {
-    swal("email 또는 password 를 확인해주세요");
+  if(email == "") {
+    swal("email 을 입력 해주세요");
+    return;
+  }
+  if(password == "") {
+    swal("password 를 입력 해주세요");
     return;
   }
 
@@ -194,6 +199,14 @@ $("button[name='loginBtn']").click(function() {
     console.log(result);
   });
   return false;
+});
+$("#loginDiv").css("display", "none");
+
+// 아이디 재설정
+$('#productInfo').on("click", "#goToLogin", function() {
+  $("#urlDiv").css("display", "none");
+  $("#productInfo").css("display", "none");
+  $("#loginDiv").css("display", "block");
 });
 
 $(document).ajaxStart(function () {
