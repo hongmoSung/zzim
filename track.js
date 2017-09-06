@@ -298,10 +298,10 @@ function cronCrawling(url, callback) {
     */
     var cmpnyc = '';
     var link_pcode = '';
-    if(typeof pUrl == 'undefined') {
+    if(typeof pUrl == 'undefined' || typeof pUrl == 'err') {
       cmpnyc = 'err';
       link_pcode = 'err';
-      pLowest = 0;
+      pLowest = -1;
     }
     else {
 
