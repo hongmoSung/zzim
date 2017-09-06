@@ -296,14 +296,23 @@ function cronCrawling(url, callback) {
     pLowest = pLowest.trim().replace(',', '');
     console.log(':::::::::::::::', pLowest);
     */
+    var cmpnyc = '';
+    var link_pcode = '';
+    if(typeof pUrl == 'undefined') {
+      cmpnyc = 'err';
+      link_pcode = 'err';
+      pLowest = 0;
+    }
+    else {
 
     // 회사 코드
-    var cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
+    cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
     //console.log('cmpnyc :::::::::::::::::::::::::::: ', cmpnyc);
 
     var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
-    var link_pcode = b[0];
+    link_pcode = b[0];
     //console.log('link_pcode::::::::::::::::::::::::::::::::::', link_pcode);
+    }
 
     switch (cmpnyc) {
       case 'EE128':
@@ -329,6 +338,9 @@ function cronCrawling(url, callback) {
       case 'ED910':
         //console.log('인터파크::::::::::::::');
         pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
+        break;
+      case 'err':
+        pUrl = link_pcode;
         break;
       default:
 

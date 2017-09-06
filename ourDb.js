@@ -2,12 +2,12 @@ var mysql = require('mysql');
 var tr = require('./track.js');
 
 var pool = mysql.createPool({
-    connectionLimit : 10,
-    host : '192.168.0.11',
-    user : 'server',
-    password : 'password',
-    database : 'server',
-    debug : false
+connectionLimit : 10,
+host : '192.168.0.11',
+user : 'server',
+password : 'password',
+database : 'server',
+debug : false
 });
 
 // 상품 추가
@@ -123,6 +123,7 @@ function checkTracking(email, pNo, callback) {
   });
 }
 // 트렉킹 테이블 조회
+/*
 function selectTracking(pNo, callback) {
   //console.log('selectTracking 호출됨');
 
@@ -138,6 +139,39 @@ function selectTracking(pNo, callback) {
       //console.log('실행 대상 SQL : ' + exec.sql);
       if(rows.length > 0) {
         //console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
+        callback(null, rows);
+      } else {
+        var err = {};
+        console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
+        callback(err, null);
+      }
+    });
+  });
+}
+*/
+// 트렉킹 테이블 조회
+function selectTracking(pNo, callback) {
+  //console.log('selectTracking 호출됨');
+
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+    var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ?',
+                          [pNo], function(err, rows, fields) {
+      conn.release();
+      //console.log('실행 대상 SQL : ' + exec.sql);
+
+      //var columns = ['pName', 'pLowest', 'email', 'tr.pNo', 'notifyPrice'];
+      //var tableName = 'tbl_product pd join tbl_tracking tr';
+      //var exec = conn.query('select ?? from ?? on pd.? = tr.?',
+      //                      [columns, tableName, pNo, pNo], function(err, rows, fields) {
+
+
+      if(rows.length > 0) {
+        console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
       } else {
         var err = {};
@@ -214,13 +248,14 @@ function selectAllProduct(callback) {
   var oldPrice = '';
   var newPurl = '';
   var pNo = '';
+  var pName = '';
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
       return;
     }
     //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var columns = ['pNo', 'pLowest', 'crawlingUrl'];
+    var columns = ['pNo', 'pLowest', 'crawlingUrl', 'pName'];
     var tableName = 'tbl_product';
 
     var exec = conn.query('select ?? from ??',
@@ -236,6 +271,7 @@ function selectAllProduct(callback) {
           //console.log('테이블안의 가격 :::::::::: ', a[i].pLowest);
           //
           oldPrice = a[i].pLowest;
+          pName = a[i].pName;
           //
           tr.cronCrawling(a[i].crawlingUrl, function(err, product) {
             //console.log('@@@@@@@@@@@@@@@@@',  product);
@@ -268,6 +304,10 @@ function selectAllProduct(callback) {
                               //console.log('email ================= ', row.email);
                               if(row.notifyPrice >= newPrice) {
                                 // 정욱이형 하세요.....
+                                console.log('notifyPrice ====================== ', row.notifyPrice);
+                                console.log('email ================= ', row.email);
+                                console.log('pNo ================= ', row.pNo);
+                                console.log('pName ================== ', row.pName);
                                 //console.log('고객이 원하는 가격에 달성했음......');
                                 //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
                                 callback(null, result);
