@@ -1,6 +1,7 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
 
+
 var pool = mysql.createPool({
 connectionLimit : 10,
 host : '192.168.0.11',
@@ -9,7 +10,16 @@ password : 'password',
 database : 'server',
 debug : false
 });
-
+/*
+var pool = mysql.createPool({
+    connectionLimit : 10,
+    host : 'localhost',
+    user : 'hobby',
+    password : 'password',
+    database : 'hobby',
+    debug : false
+});
+*/
 // 상품 추가
 function addProduct(data, callback) {
   //console.log('addProduct 호출됨');
@@ -149,33 +159,25 @@ function selectTracking(pNo, callback) {
   });
 }
 */
-// 트렉킹 테이블 조회
+// 트렉킹 테이블 조회ghdah30
 function selectTracking(pNo, callback) {
   //console.log('selectTracking 호출됨');
-
+  //console.log('pNo...........................', pNo);
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
       return;
     }
     //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ?',
+    var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ? and tr.notifyPrice >= pd.pLowest',
                           [pNo], function(err, rows, fields) {
       conn.release();
-      //console.log('실행 대상 SQL : ' + exec.sql);
-
-      //var columns = ['pName', 'pLowest', 'email', 'tr.pNo', 'notifyPrice'];
-      //var tableName = 'tbl_product pd join tbl_tracking tr';
-      //var exec = conn.query('select ?? from ?? on pd.? = tr.?',
-      //                      [columns, tableName, pNo, pNo], function(err, rows, fields) {
-
-
       if(rows.length > 0) {
         console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
       } else {
         var err = {};
-        console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
+        //console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
         callback(err, null);
       }
     });
@@ -183,6 +185,7 @@ function selectTracking(pNo, callback) {
 }
 
 // 상품 업데이트
+/*
 function updateProduct(newPrice, newPurl, pNo, callback) {
   //console.log('updateProduct 호출됨');
 
@@ -193,6 +196,33 @@ function updateProduct(newPrice, newPurl, pNo, callback) {
     }
     //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
     var exec = conn.query('update tbl_product set pLowest = ?, pUrl = ? where pNo = ?;', [newPrice, newPurl, pNo], function(err, result) {
+      conn.release();
+      //console.log('실행 대상 SQL : ' + exec.sql);
+
+      if(err) {
+        console.log('SQL 실행 시 오류 발생함.');
+        console.dir(err);
+        callback(err, null);
+        return;
+      } else {
+        callback(null, result);
+      }
+    });
+  });
+}
+*/
+// 상품 업데이트
+function updateProduct(product, callback) {
+  //console.log('updateProduct 호출됨');
+  //console.log('product:::::::::::::', product);
+
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+    var exec = conn.query('update tbl_product set pLowest = ?, pUrl = ? where pNo = ?;', [product.pLowest, product.pUrl, product.pNo], function(err, result) {
       conn.release();
       //console.log('실행 대상 SQL : ' + exec.sql);
 
@@ -262,6 +292,7 @@ function selectAllProduct(callback) {
                           [columns, tableName], function(err, rows, fields) {
       conn.release();
       //console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('selectAllProduct rows ::::::::::::::::::::::::::', rows);
       var a = [];
       if(rows.length > 0) {
         //console.log('tbl_product 조회 성공...');
@@ -272,7 +303,7 @@ function selectAllProduct(callback) {
           //
           oldPrice = a[i].pLowest;
           pName = a[i].pName;
-          //
+          ////////////////////////////////////////////////////////////////////////////////////////
           tr.cronCrawling(a[i].crawlingUrl, function(err, product) {
             //console.log('@@@@@@@@@@@@@@@@@',  product);
             product.pNo = a[i].pNo;
@@ -281,59 +312,74 @@ function selectAllProduct(callback) {
             newPrice = product.pLowest;
             newPurl = product.pUrl;
             pNo = a[i].pNo;
+
             addHistory(product, function(err, result) {
-              //console.log(result);
-              if(result) {
-                //console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$ insert history success $$$$$$$$$$$$$$$$$$$$$$$$$$$');
-                if(newPrice != oldPrice) {
-                  //console.log('가격 변동으로 인해 수정합니다.');
-                  updateProduct(newPrice, newPurl, pNo, function(err, result) {
-                    if(result) {
-                      //console.log('가격 수정 성공');
-                      ////////////////////////////////////
-                      if(newPrice < oldPrice) {
-                        selectTracking(pNo, function(err, rows) {
-                          if(err) {
-                            console.log('selectTracking err');
-                            callback(err, null);
-                          } else {
-                            rows.forEach(function(row, i) {
-                              //console.log('조회된 트레킹테이블 뒤지는중....');
-                              //console.log('notifyPrice ================= ', row.notifyPrice);
-                              //console.log('pNo ================= ', row.pNo);
-                              //console.log('email ================= ', row.email);
-                              if(row.notifyPrice >= newPrice) {
-                                // 정욱이형 하세요.....
-                                console.log('notifyPrice ====================== ', row.notifyPrice);
-                                console.log('email ================= ', row.email);
-                                console.log('pNo ================= ', row.pNo);
-                                console.log('pName ================== ', row.pName);
-                                //console.log('고객이 원하는 가격에 달성했음......');
-                                //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
-                                callback(null, result);
-                              } else {
-                                //console.log('고객이 원하는 가격에 달성못함......');
-                                callback(null, result);
-                              }
-                            });
-                          }
-                        });
-                      }
-                      ////////////////////////////////////
-                      callback(null, result);
-                    } else {
-                      console.log('updateProduct err');
-                      callback(err, null);
-                    }
-                  });
-                } else {
-                  //console.log('가격변동이 없습니다.');
-                  callback(null, result);
-                }
+            //console.log('addHistory::::::::::::::::::::::::', result.affectedRows);
+            if(result.affectedRows == 1) {
+              //console.log(a[i].pName);
+              if(a[i].pLowest != product.pLowest) {
+                console.log('가격변동이 없음');
+                console.log('product :::::: ', product);
               } else {
-                console.log('addHistory err');
-                callback(err, null);
+                //updateProduct(newPrice, newPurl, pNo, function(err, result) {
+                updateProduct(product, function(err, result) {
+                  //console.log('result:::::::::::::::::::::', result);
+                  if(result) {
+                    //console.log('가격 수정 성공');
+                    //console.log('집어 넣은 가격', product.pLowest);
+                    //console.log('이전의 갸격', a[i].pLowest);
+                    //console.log(result);
+                    ////////////////////////////////////
+                    //  newPrice oldPrice
+                    if(product.pLowest == a[i].pLowest) {
+                      //console.log('반대의경우');
+                      console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
+                      console.log('--------------------------------------------------------------------------');
+                      selectTracking(product.pNo, function(err, rows, fields) {
+                        if(err) {
+                          //console.log('selectTracking err');
+                          callback(err, null);
+                        } else {
+                          console.log(rows);
+                          /*
+                          rows.forEach(function(row, i) {
+                            console.log('row', row);
+                            //console.log('조회된 트레킹테이블 뒤지는중....');
+                            //console.log('notifyPrice ================= ', row.notifyPrice);
+                            //console.log('pNo ================= ', row.pNo);
+                            //console.log('email ================= ', row.email);
+                            if(row.notifyPrice >= newPrice) {
+                              // 정욱이형 하세요.....
+                              console.log('notifyPrice ====================== ', row.notifyPrice);
+                              console.log('email ================= ', row.email);
+                              console.log('pNo ================= ', row.pNo);
+                              console.log('pName ================== ', row.pName);
+                              //console.log('고객이 원하는 가격에 달성했음......');
+                              //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
+                              callback(null, result);
+                            } else {
+                              //console.log('고객이 원하는 가격에 달성못함......');
+                              callback(null, result);
+                            }
+                          });
+                            */
+                        }
+                      });
+                    }
+                    ////////////////////////////////////
+
+                    callback(null, result);
+                    console.log('알람을 안주는 경우...');
+                  } else {
+                    console.log('updateProduct err');
+                    callback(err, null);
+                  }
+                });
               }
+            } else {
+              console.log('addHistory err');
+              callback(err, null);
+            }
             });
           });
       	});
