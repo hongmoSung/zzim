@@ -40,30 +40,32 @@ function cartCrawling(email, func) {
                         var strContents = new Buffer(body);
                         body = iconv.decode(strContents, 'EUC-KR').toString();
                         var $ = cheerio.load(body);
+                        if($("tr.no_prd").length == 0){
+                            var legnth = $('#cartTable_area > table > tbody > tr').length;
+                            for (var i = 1; i <= legnth; i++) {
+                                cName = trim($("#cartTable_area > table > tbody > tr:nth-child(" + i + ") > td.td_prdwrap > div > div.infoWrap > div.dp_title > label > a").text());
+                                var href = $("#cartTable_area > table > tbody > tr:nth-child(" + i + ") > td.td_prdwrap > div > div.infoWrap > div.dp_title > label > a").attr("href");
+                                console.log(href);
+                                var startIndex = href.indexOf('http');
+                                var endIndex = href.indexOf("^");
+                                cLink = trim(href.substring(startIndex, endIndex));
+                                cPic = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td.td_prdwrap > div > div.dp_photo > a > img').attr("src"));
+                                var price = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td.rlt_price').text());
+                                var endIndex = price.indexOf("원");
+                                cPrice = trim(price.substring(0, endIndex));
+                                cCount = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td:nth-child(3) > div > label > input').attr('value'));
+                                cDelivery = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td:nth-child(7) > div > div > em').text());
 
-                        var legnth = $('#cartTable_area > table > tbody > tr').length;
-                        for (var i = 1; i <= legnth; i++) {
-                            cName = trim($("#cartTable_area > table > tbody > tr:nth-child(" + i + ") > td.td_prdwrap > div > div.infoWrap > div.dp_title > label > a").text());
-                            var href = $("#cartTable_area > table > tbody > tr:nth-child(" + i + ") > td.td_prdwrap > div > div.infoWrap > div.dp_title > label > a").attr("href");
-                            var startIndex = href.indexOf('http');
-                            var endIndex = href.indexOf("^");
-                            cLink = trim(href.substring(startIndex, endIndex));
-                            cPic = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td.td_prdwrap > div > div.dp_photo > a > img').attr("src"));
-                            var price = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td.rlt_price').text());
-                            var endIndex = price.indexOf("원");
-                            cPrice = trim(price.substring(0, endIndex));
-                            cCount = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td:nth-child(3) > div > label > input').attr('value'));
-                            cDelivery = trim($('#cartTable_area > table > tbody > tr:nth-child(' + i + ') > td:nth-child(7) > div > div > em').text());
-
-                            var item = {
-                                cName: cName,
-                                cLink: cLink,
-                                cPic: cPic,
-                                cPrice: cPrice,
-                                cCount: cCount,
-                                cDelivery: cDelivery
-                            };
-                            itemArr.push(item);
+                                var item = {
+                                    cName: cName,
+                                    cLink: cLink,
+                                    cPic: cPic,
+                                    cPrice: cPrice,
+                                    cCount: cCount,
+                                    cDelivery: cDelivery
+                                };
+                                itemArr.push(item);
+                            }
                         }
                         var result11 = {};
                         result11['11st'] = itemArr;
@@ -192,32 +194,37 @@ function cartCrawling(email, func) {
                         var itemArr = [];
                         var strContents = new Buffer(body);
                         body = iconv.decode(strContents, 'utf8').toString();
-                        var temp1 = body.split('JSON.parse(JSON.stringify(');
-                        var strObj = temp1[1].split('))')[0];
-                        var dataObj = JSON.parse(strObj);
-                        //console.log(dataObj);
-                        //console.log(dataObj.cartItemList.length);
-                        //console.log(dataObj.cartItemList[0]);
+                        try {
+                            var temp1 = body.split('JSON.parse(JSON.stringify(');
+                            var strObj = temp1[1].split('))')[0];
+                            var dataObj = JSON.parse(strObj);
+                            //console.log(dataObj);
+                            //console.log(dataObj.cartItemList.length);
+                            //console.log(dataObj.cartItemList[0]);
 
 
-                        for (var i = 0; i < dataObj.cartItemList.length; i++) {
-                            cName = dataObj.cartItemList[i].ItemInfo.ItemName;
-                            cPic = dataObj.cartItemList[i].ItemInfo.ItemImagePath;
-                            cPrice = dataObj.cartItemList[i].ItemInfo.ItemOrderPrice;
-                            cCount = dataObj.cartItemList[i].OrderQty;
-                            cDelivery = dataObj.cartItemList[i].ShippingInfo.ShippingGroupText;
-                            cLink = "http://item.gmarket.co.kr/Item?goodscode="+dataObj.cartItemList[i].ItemInfo.ItemNo;
+                            for (var i = 0; i < dataObj.cartItemList.length; i++) {
+                                cName = dataObj.cartItemList[i].ItemInfo.ItemName;
+                                cPic = dataObj.cartItemList[i].ItemInfo.ItemImagePath;
+                                cPrice = dataObj.cartItemList[i].ItemInfo.ItemOrderPrice;
+                                cCount = dataObj.cartItemList[i].OrderQty;
+                                cDelivery = dataObj.cartItemList[i].ShippingInfo.ShippingGroupText;
+                                cLink = "http://item.gmarket.co.kr/Item?goodscode="+dataObj.cartItemList[i].ItemInfo.ItemNo;
 
-                            var item = {
-                                cName: cName,
-                                cLink: cLink,
-                                cPic: cPic,
-                                cPrice: cPrice,
-                                cCount: cCount,
-                                cDelivery: cDelivery
-                            };
-                            itemArr.push(item);
+                                var item = {
+                                    cName: cName,
+                                    cLink: cLink,
+                                    cPic: cPic,
+                                    cPrice: cPrice,
+                                    cCount: cCount,
+                                    cDelivery: cDelivery
+                                };
+                                itemArr.push(item);
+                            }
+                        }catch (e){
+                            console.log("gmarket - get cart err");
                         }
+
                         var resultG = {};
                         resultG['gmarket'] = itemArr;
                         callback(null, resultG);

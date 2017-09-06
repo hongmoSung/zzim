@@ -37,7 +37,7 @@ app.post('/checkEmail',function(request,response){
         websiteId : request.body.websiteId,
         websitePw : request.body.websitePw
     }
-    console.log(loginData);
+    console.log("/checkEmail::",loginData);
     setCookies.setWebsiteCookies(loginData,function(result){
         console.log("result:::",result);
         response.status(200).json({"result":result});
