@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
+var request = require('request');
 
 var pool = mysql.createPool({
 connectionLimit : 10,
@@ -159,7 +160,7 @@ function selectTracking(pNo, callback) {
       return;
     }
     //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ?',
+    var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ? and tr.notifyPrice >= pd.pLowest',
                           [pNo], function(err, rows, fields) {
       conn.release();
       //console.log('실행 대상 SQL : ' + exec.sql);
@@ -297,29 +298,64 @@ function selectAllProduct(callback) {
                             console.log('selectTracking err');
                             callback(err, null);
                           } else {
+                            var sql = "select token from tbl_token where email in (";
+                            
+                            for(var i = 0; i < rows.length; i++){
+                                if(row.notifyPrice >= newPrice) {
+                                    
+                                }
+                                sql += "'" + row[i].email + "'"
+                                if(rows.length == i){
+                                    sql += ')';
+                                    break;
+                                }
+                                sql += ",";
+                            }
+                            /*  
                             rows.forEach(function(row, i) {
                               //console.log('조회된 트레킹테이블 뒤지는중....');
                               //console.log('notifyPrice ================= ', row.notifyPrice);
                               //console.log('pNo ================= ', row.pNo);
                               //console.log('email ================= ', row.email);
                               if(row.notifyPrice >= newPrice) {
-                                // 정욱이형 하세요.....
-                                console.log('notifyPrice ====================== ', row.notifyPrice);
-                                console.log('email ================= ', row.email);
-                                console.log('pNo ================= ', row.pNo);
-                                console.log('pName ================== ', row.pName);
-                                //console.log('고객이 원하는 가격에 달성했음......');
-                                //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
+//                                console.log('notifyPrice ====================== ', row.notifyPrice);
+//                                console.log('email ================= ', row.email);
+//                                console.log('pNo ================= ', row.pNo);
+//                                console.log('pName ================== ', row.pName);
+                                
+                                  
                                 callback(null, result);
                               } else {
                                 //console.log('고객이 원하는 가격에 달성못함......');
                                 callback(null, result);
                               }
                             });
+                            */
+                            console.log(sql); // 일단 test!!!!!
+                              
+                              
+                      //////토큰 가져오기//////////////////////////////////////////////////////////////        
+                            pool.getConnection(function(err, conn) {
+                            if(err) {
+                              conn.release();
+                              return;
+                            }
+                            
+                            var tokenArr = [];
+                            var exec = conn.query(sql, function(err, results, fields) {
+                                        conn.release();
+                                        
+                                        results.forEach(function(result))
+                                
+                                        sendNotification()
+                                        });
+                            });
+                            
+                            
+                      /////////////////////////////////////////////////////////////////////////////        
                           }
                         });
                       }
-                      ////////////////////////////////////
                       callback(null, result);
                     } else {
                       console.log('updateProduct err');
@@ -343,6 +379,44 @@ function selectAllProduct(callback) {
       }
     });
   });
+}
+
+
+function sendNotification(pName, emails){
+    var headers = {
+        'Authorization': 'key=AAAA3MZfvK4:APA91bFWnEWq94oT5PslAx2JzJisiLTfzKVjiD4gHPjHVClNmrPj8hH7YGxBKNZ3gkLROwRoXTyVcMUyA0VVfccC8QYZdeAJx8PVkVBVmKNIcNuFOqcrj9boSKzpfZFOOqm68RfDj-56',
+    }
+
+    var body = {
+      "notification": {
+        "title": "zzim알림",
+        "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
+        "icon": "firebase-logo.png",
+        "click_action": "http://localhost:8880"
+      },
+      "registration_ids": emails
+    }
+
+
+    var options = {
+        url: 'http://fcm.googleapis.com/fcm/send',
+        method: 'POST',
+        headers: headers,
+        json: true,
+        body: body
+    }
+
+    request(options, function (err, res, body) {
+      if (err) {
+        console.error('FCM메세지 보내기 오류::::: ', err);
+        throw err;
+      }
+
+      console.log('headers: ', res.headers)
+      console.log('statusCode: ', res.statusCode)
+      console.log('body: ', body)
+    })
+    
 }
 
 module.exports.addProduct = addProduct;
