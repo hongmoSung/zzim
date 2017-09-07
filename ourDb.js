@@ -132,33 +132,7 @@ function checkTracking(email, pNo, callback) {
     });
   });
 }
-// 트렉킹 테이블 조회
-/*
-function selectTracking(pNo, callback) {
-  //console.log('selectTracking 호출됨');
 
-  pool.getConnection(function(err, conn) {
-    if(err) {
-      conn.release();
-      return;
-    }
-    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var exec = conn.query('select * from tbl_tracking where pNo = ?',
-                           [pNo], function(err, rows, fields) {
-      conn.release();
-      //console.log('실행 대상 SQL : ' + exec.sql);
-      if(rows.length > 0) {
-        //console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
-        callback(null, rows);
-      } else {
-        var err = {};
-        console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
-        callback(err, null);
-      }
-    });
-  });
-}
-*/
 // 트렉킹 테이블 조회ghdah30
 function selectTracking(pNo, callback) {
   //console.log('selectTracking 호출됨');
@@ -184,33 +158,6 @@ function selectTracking(pNo, callback) {
   });
 }
 
-// 상품 업데이트
-/*
-function updateProduct(newPrice, newPurl, pNo, callback) {
-  //console.log('updateProduct 호출됨');
-
-  pool.getConnection(function(err, conn) {
-    if(err) {
-      conn.release();
-      return;
-    }
-    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-    var exec = conn.query('update tbl_product set pLowest = ?, pUrl = ? where pNo = ?;', [newPrice, newPurl, pNo], function(err, result) {
-      conn.release();
-      //console.log('실행 대상 SQL : ' + exec.sql);
-
-      if(err) {
-        console.log('SQL 실행 시 오류 발생함.');
-        console.dir(err);
-        callback(err, null);
-        return;
-      } else {
-        callback(null, result);
-      }
-    });
-  });
-}
-*/
 // 상품 업데이트
 function updateProduct(product, callback) {
   //console.log('updateProduct 호출됨');
@@ -270,7 +217,40 @@ function selectUser(email, callback) {
     });
   });
 }
+// 상품 조회
+function selectProduct(pName, callback) {
+  console.log('selectProduct 호출됨');
 
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+
+    var columns = ['pNo'];
+    var tableName = 'tbl_product';
+
+    var exec = conn.query('select ?? from ?? where pName = ?',
+                          [columns, tableName, pName], function(err, rows, fields) {
+      conn.release();
+      console.log('실행 대상 SQL : ' + exec.sql);
+
+      if(rows.length > 0) {
+        console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
+        rows.forEach(function (row, i) {
+          //result = {"pNo": row.pNo, "productChk": "success"};
+          //console.log("db에서의 result", result);
+          callback(null, rows);
+      	});
+      } else {
+        console.log('일치하는 제품을 찾지 못함');
+        //result = {"productChk": "fail"};
+        callback(err, null);
+      }
+    });
+  });
+}
 // 전체 상품 조회
 function selectAllProduct(callback) {
   //console.log('selectProduct 호출됨');
@@ -319,13 +299,13 @@ function selectAllProduct(callback) {
               //console.log(a[i].pName);
               if(a[i].pLowest != product.pLowest) {
                 console.log('가격변동이 없음');
-                console.log('product :::::: ', product);
+                //console.log('product :::::: ', product);
               } else {
                 //updateProduct(newPrice, newPurl, pNo, function(err, result) {
                 updateProduct(product, function(err, result) {
                   //console.log('result:::::::::::::::::::::', result);
                   if(result) {
-                    //console.log('가격 수정 성공');
+                    console.log('가격 수정 성공');
                     //console.log('집어 넣은 가격', product.pLowest);
                     //console.log('이전의 갸격', a[i].pLowest);
                     //console.log(result);
@@ -396,3 +376,4 @@ module.exports.addTracking = addTracking;
 module.exports.checkTracking = checkTracking;
 module.exports.selectUser = selectUser;
 module.exports.selectAllProduct = selectAllProduct;
+module.exports.selectProduct = selectProduct;
