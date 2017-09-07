@@ -8,6 +8,8 @@ var CryptoJS = require("crypto-js");
 var cart = require('./cart');
 var setCookies = require('./setUserCookies');
 
+
+
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(function (req, res, next) {
@@ -15,11 +17,12 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
 app.post("/track", function(req, res) {
-  var url = req.body.url;
-  tr.chase(url, function(result) {
-    res.send(result);
-  });
+    var url = req.body.url;
+    tr.chase(url, function(result) {
+        res.send(result);
+    });
 });
 
 app.post('/cart', function (request, response) {
