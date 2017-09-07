@@ -147,7 +147,7 @@ function selectTracking(pNo, callback) {
                           [pNo], function(err, rows, fields) {
       conn.release();
       if(rows.length > 0) {
-        console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
+        //console.log('pNo[%s] 가 일치하는 상품 찾음.', pNo);
         callback(null, rows);
       } else {
         var err = {};
@@ -214,6 +214,47 @@ function selectUser(email, callback) {
         console.log('일치하는 사용자를 찾지 못함');
         callback(err, null);
       }
+    });
+  });
+}
+// 상품 조회
+function selectToken(data, callback) {
+  //console.log('selectToken 호출됨');
+  //console.log('data --------------------------', data);
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+
+    var columns = ['pNo'];
+    var tableName = 'tbl_product';
+    var sql = "select token from tbl_token where email in (";
+
+    for(var i = 0; i < data.length; i++){
+        sql += "'" + data[i].email + "'";
+
+        if(data.length-1 == i){
+            sql += ')';
+            break;
+        }
+        sql += ",";
+    }
+    var exec = conn.query(sql, function(err, rows, fields) {
+        console.log('sql ////////////////////////', sql);
+        conn.release();
+        if(rows.length > 0){
+          //console.log('성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공');
+          callback(null, rows);
+            // rows.forEach(function (row, i) {
+            //     //console.log('성공 row////////////////////', row);
+            // });
+        } else {
+          console.log('일치하는 토큰을 찾지 못함');
+          //result = {"productChk": "fail"};
+          callback(err, null);
+        }
     });
   });
 }
@@ -298,14 +339,14 @@ function selectAllProduct(callback) {
             if(result.affectedRows == 1) {
               //console.log(a[i].pName);
               if(a[i].pLowest != product.pLowest) {
-                console.log('가격변동이 없음');
+                //console.log('가격변동이 없음', product.pNo);
                 //console.log('product :::::: ', product);
               } else {
                 //updateProduct(newPrice, newPurl, pNo, function(err, result) {
                 updateProduct(product, function(err, result) {
                   //console.log('result:::::::::::::::::::::', result);
                   if(result) {
-                    console.log('가격 수정 성공');
+                    //console.log('가격 수정 성공', product.pNo);
                     //console.log('집어 넣은 가격', product.pLowest);
                     //console.log('이전의 갸격', a[i].pLowest);
                     //console.log(result);
@@ -313,43 +354,27 @@ function selectAllProduct(callback) {
                     //  newPrice oldPrice
                     if(product.pLowest == a[i].pLowest) {
                       //console.log('반대의경우');
-                      console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
-                      console.log('--------------------------------------------------------------------------');
+                      //console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
+                      //console.log('--------------------------------------------------------------------------');
                       selectTracking(product.pNo, function(err, rows, fields) {
-                        if(err) {
-                          //console.log('selectTracking err');
-                          callback(err, null);
-                        } else {
-                          console.log(rows);
-                          /*
-                          rows.forEach(function(row, i) {
-                            console.log('row', row);
-                            //console.log('조회된 트레킹테이블 뒤지는중....');
-                            //console.log('notifyPrice ================= ', row.notifyPrice);
-                            //console.log('pNo ================= ', row.pNo);
-                            //console.log('email ================= ', row.email);
-                            if(row.notifyPrice >= newPrice) {
-                              // 정욱이형 하세요.....
-                              console.log('notifyPrice ====================== ', row.notifyPrice);
-                              console.log('email ================= ', row.email);
-                              console.log('pNo ================= ', row.pNo);
-                              console.log('pName ================== ', row.pName);
-                              //console.log('고객이 원하는 가격에 달성했음......');
-                              //console.log('정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....정욱이형 하세요.....');
-                              callback(null, result);
-                            } else {
-                              //console.log('고객이 원하는 가격에 달성못함......');
-                              callback(null, result);
+                        if(rows) {
+                          var data = rows;
+                          //console.log('data ::::::::::::::', data);
+                          selectToken(rows, function(err, rows) {
+                            if(rows) {
+                              console.log('rows', rows);
                             }
                           });
-                            */
+                        } else {
+                          //console.log('tracking없는거');
+                          callback(err, null);
                         }
                       });
                     }
                     ////////////////////////////////////
 
                     callback(null, result);
-                    console.log('알람을 안주는 경우...');
+                    //console.log('알람을 안주는 경우...');
                   } else {
                     console.log('updateProduct err');
                     callback(err, null);
