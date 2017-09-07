@@ -1,5 +1,6 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
+var fire = require('./fcm.js');
 
 
 var pool = mysql.createPool({
@@ -219,8 +220,6 @@ function selectUser(email, callback) {
 }
 // 상품 조회
 function selectToken(data, callback) {
-  //console.log('selectToken 호출됨');
-  //console.log('data --------------------------', data);
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
@@ -242,17 +241,11 @@ function selectToken(data, callback) {
         sql += ",";
     }
     var exec = conn.query(sql, function(err, rows, fields) {
-        console.log('sql ////////////////////////', sql);
         conn.release();
         if(rows.length > 0){
-          //console.log('성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공성공');
           callback(null, rows);
-            // rows.forEach(function (row, i) {
-            //     //console.log('성공 row////////////////////', row);
-            // });
         } else {
           console.log('일치하는 토큰을 찾지 못함');
-          //result = {"productChk": "fail"};
           callback(err, null);
         }
     });
@@ -294,12 +287,6 @@ function selectProduct(pName, callback) {
 }
 // 전체 상품 조회
 function selectAllProduct(callback) {
-  //console.log('selectProduct 호출됨');
-  var newPrice = '';
-  var oldPrice = '';
-  var newPurl = '';
-  var pNo = '';
-  var pName = '';
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
@@ -312,67 +299,43 @@ function selectAllProduct(callback) {
     var exec = conn.query('select ?? from ??',
                           [columns, tableName], function(err, rows, fields) {
       conn.release();
-      //console.log('실행 대상 SQL : ' + exec.sql);
-      //console.log('selectAllProduct rows ::::::::::::::::::::::::::', rows);
       var a = [];
       if(rows.length > 0) {
         //console.log('tbl_product 조회 성공...');
         rows.forEach(function (row, i) {
           a[i] = row;
-          //console.log(a[i].crawlingUrl);
-          //console.log('테이블안의 가격 :::::::::: ', a[i].pLowest);
-          //
-          oldPrice = a[i].pLowest;
-          pName = a[i].pName;
           ////////////////////////////////////////////////////////////////////////////////////////
           tr.cronCrawling(a[i].crawlingUrl, function(err, product) {
-            //console.log('@@@@@@@@@@@@@@@@@',  product);
             product.pNo = a[i].pNo;
-            //console.log('가져온 가격 ::::::::::::', product.pLowest);
-            //console.log('가져온 url ::::::::::::', product.pUrl);
-            newPrice = product.pLowest;
-            newPurl = product.pUrl;
-            pNo = a[i].pNo;
-
             addHistory(product, function(err, result) {
-            //console.log('addHistory::::::::::::::::::::::::', result.affectedRows);
             if(result.affectedRows == 1) {
-              //console.log(a[i].pName);
-              if(a[i].pLowest != product.pLowest) {
+              if(a[i].pLowest == product.pLowest) {
                 //console.log('가격변동이 없음', product.pNo);
-                //console.log('product :::::: ', product);
               } else {
-                //updateProduct(newPrice, newPurl, pNo, function(err, result) {
+                console.log('가격변동', product.pNo);
                 updateProduct(product, function(err, result) {
-                  //console.log('result:::::::::::::::::::::', result);
                   if(result) {
-                    //console.log('가격 수정 성공', product.pNo);
-                    //console.log('집어 넣은 가격', product.pLowest);
-                    //console.log('이전의 갸격', a[i].pLowest);
-                    //console.log(result);
+                    console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
+                    selectTracking(product.pNo, function(err, rows, fields) {
+                      if(rows) {
+                        console.log('알람을 주기위해2 selectTracking::::::::::::::::::::::::', product.pNo);
+                        var data = rows;
+                        selectToken(rows, function(err, rows) {
+                          var tokenArr = [];
+                          if(rows) {
+                            console.log('알람을 주기위해3 selectTracking::::::::::::::::::::::::', product.pNo);
+                            rows.forEach(function (row, i) {
+                              tokenArr.push(row.token);
+                          	});
+                          }
+                          fire.sendNotification(product.pName, tokenArr);
+                        });
+                      } else {
+                        //console.log('tracking없는거');
+                        callback(err, null);
+                      }
+                    });
                     ////////////////////////////////////
-                    //  newPrice oldPrice
-                    if(product.pLowest == a[i].pLowest) {
-                      //console.log('반대의경우');
-                      //console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
-                      //console.log('--------------------------------------------------------------------------');
-                      selectTracking(product.pNo, function(err, rows, fields) {
-                        if(rows) {
-                          var data = rows;
-                          //console.log('data ::::::::::::::', data);
-                          selectToken(rows, function(err, rows) {
-                            if(rows) {
-                              console.log('rows', rows);
-                            }
-                          });
-                        } else {
-                          //console.log('tracking없는거');
-                          callback(err, null);
-                        }
-                      });
-                    }
-                    ////////////////////////////////////
-
                     callback(null, result);
                     //console.log('알람을 안주는 경우...');
                   } else {
