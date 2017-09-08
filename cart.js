@@ -11,7 +11,8 @@ function cartCrawling(email, func) {
     var task = [
         function (callback) {
             var sql = "select * from tbl_logindata where email = ?";
-            pool.getConnection(function(err, conn) {
+
+            db.pool.getConnection(function(err, conn) {
                 if(err) {
                     conn.release();
                     return;

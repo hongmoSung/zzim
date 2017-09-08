@@ -17,7 +17,7 @@ var batch = function(){
         });
     });
 
-    cron.schedule('2 */1 * * *', function(){
+    cron.schedule('30 */1 * * *', function(){
         setCookies.setUserCookies();
     });
 

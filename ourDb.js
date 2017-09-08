@@ -4,12 +4,12 @@ var fire = require('./fcm.js');
 
 
 var pool = mysql.createPool({
-connectionLimit : 10,
-host : '192.168.0.11',
-user : 'server',
-password : 'password',
-database : 'server',
-debug : false
+    connectionLimit: 500,
+    host: '192.168.0.11', port: 3306,
+    user: 'server',
+    password: 'password',
+    database: 'server',
+    debug: false
 });
 
 // 상품 추가
@@ -356,3 +356,4 @@ module.exports.checkTracking = checkTracking;
 module.exports.selectUser = selectUser;
 module.exports.selectAllProduct = selectAllProduct;
 module.exports.selectProduct = selectProduct;
+module.exports.pool = pool;

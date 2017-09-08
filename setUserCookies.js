@@ -3,10 +3,12 @@ const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const async = require('async');
 var startTime
+
+
 var setUserCookies = function () {
     startTime = new Date().getTime();
 
-    pool.getConnection(function(err, conn) {
+    db.pool.getConnection(function(err, conn) {
         if(err) {
             conn.release();
             return;
@@ -27,23 +29,25 @@ var setCookies = function (email) {
     var websiteList = {};
     var task = [
         function (callback) {
-            var sql = "select email, website, websiteId, AES_DECRYPT(UNHEX(websitePw), 'aes') as websitePw from tbl_logindata where email = ?";
-            pool.getConnection(function(err, conn) {
+
+            db.pool.getConnection(function(err, conn) {
                 if(err) {
                     conn.release();
                     return;
                 }
+                var sql = "select email, website, websiteId, AES_DECRYPT(UNHEX(websitePw), 'aes') as websitePw from tbl_logindata where email = ?";
                 conn.query(sql, [email], function (err, rows, fields) {
                     rows.forEach(function (row, i) {
                         var pwBuffer = new Buffer(row.websitePw);
                         row.websitePw = pwBuffer.toString();
                         websiteList[row.website] = row;
                     });
+                    console.log("Asdasdasdasdasd");
+                    console.log(email);
+                    console.log(websiteList);
                     callback(null);
                 });
             });
-
-
         }
     ];
     var task2 = [
@@ -68,12 +72,19 @@ var setCookies = function (email) {
                     })
                 });
                 driver.then(function(){
-                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = '11st'";
-                    con.query(sql,[elevenCookies,email],function(err,rows,fields){
-                        if(err) console.log("err");
-                        else callback(null,"update 11st cookies");
+                    db.pool.getConnection(function(err, conn) {
+                        if(err) {
+                            conn.release();
+                            return;
+                        }
+                        var sql = "update tbl_logindata set cookies = ? where email = ? and website = '11st'";
+                        conn.query(sql,[elevenCookies,email],function(err,rows,fields){
+                            if(err) console.log("err");
+                            else callback(null,"update 11st cookies");
+                        });
                     });
-                })
+
+                });
                 driver.quit();
             }else{
                 callback(null);
@@ -100,11 +111,18 @@ var setCookies = function (email) {
                     })
                 });
                 driver.then(function(){
-                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'auction'";
-                    con.query(sql,[auctionCookies,email],function(err,rows,fields){
-                        if(err) console.log("err");
-                        else callback(null,"update auction cookies");
+                    db.pool.getConnection(function(err, conn) {
+                        if(err) {
+                            conn.release();
+                            return;
+                        }
+                        var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'auction'";
+                        conn.query(sql,[auctionCookies,email],function(err,rows,fields){
+                            if(err) console.log("err");
+                            else callback(null,"update auction cookies");
+                        });
                     });
+
                 });
                 driver.quit();
             }else{
@@ -134,11 +152,18 @@ var setCookies = function (email) {
                     })
                 });
                 driver.then(function(){
-                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'interpark'";
-                    con.query(sql,[interparkCookies,email],function(err,rows,fields){
-                        if(err) console.log("err");
-                        else callback(null,"update interpark cookies");
+                    db.pool.getConnection(function(err, conn) {
+                        if(err) {
+                            conn.release();
+                            return;
+                        }
+                        var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'interpark'";
+                        conn.query(sql,[interparkCookies,email],function(err,rows,fields){
+                            if(err) console.log("err");
+                            else callback(null,"update interpark cookies");
+                        });
                     });
+
                 });
                 driver.quit();
             }else{
@@ -167,11 +192,18 @@ var setCookies = function (email) {
                     })
                 });
                 driver.then(function(){
-                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'gmarket'";
-                    con.query(sql,[gmarketCookies,email],function(err,rows,fields){
-                        if(err) console.log("err");
-                        else callback(null,"update gmarket cookies");
+                    db.pool.getConnection(function(err, conn) {
+                        if(err) {
+                            conn.release();
+                            return;
+                        }
+                        var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'gmarket'";
+                        conn.query(sql,[gmarketCookies,email],function(err,rows,fields){
+                            if(err) console.log("err");
+                            else callback(null,"update gmarket cookies");
+                        });
                     });
+
                 });
                 driver.quit();
             }else{
@@ -300,7 +332,7 @@ var setWebsiteCookies = function(loginData,CBfunc){
         function(loginData,webCookies,callback){
             console.log(next);
             if (next) {
-                pool.getConnection(function(err, conn) {
+                db.pool.getConnection(function(err, conn) {
                     if(err) {
                         conn.release();
                         return;
