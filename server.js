@@ -9,10 +9,15 @@ var cart = require('./cart');
 var setCookies = require('./setUserCookies');
 var  fs = require("fs");
 
-var options = {
+/*var options = {
     key: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.key.pem'),
     cert: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.crt.pem'),
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
+};*/
+var options = {
+    key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
+    cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
+    ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
 };
 
 var https = require('https');
