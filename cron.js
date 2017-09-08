@@ -1,10 +1,9 @@
 var cron = require('node-cron');
 var db = require('./ourDb.js');
 require('date-utils');
-
 var setCookies = require('./setUserCookies');
 
-console.log('server 실행시간', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
+console.log('batch start time', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
 var batch = function(){
 
     cron.schedule('0 */2 * * *', function(){

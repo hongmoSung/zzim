@@ -7,8 +7,19 @@ var tr = require('./track.js');
 var CryptoJS = require("crypto-js");
 var cart = require('./cart');
 var setCookies = require('./setUserCookies');
+var  fs = require("fs");
 
+var options = {
+    key: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.key.pem'),
+    cert: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.crt.pem'),
+    ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
+};
 
+var https = require('https');
+https.createServer(options,app).listen(3003,function () {
+    console.log("3003 running");
+    cron.batch();
+})
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -17,7 +28,9 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-
+app.get("/", function(req, res) {
+    console.log("////");
+});
 app.post("/track", function(req, res) {
     var url = req.body.url;
     tr.chase(url, function(result) {
@@ -47,17 +60,12 @@ app.post('/checkEmail',function(request,response){
     })
 });
 app.post("/addDB", function(req, res) {
-  //console.log("************* addTracking server *************");
+
   var pName = req.body.pName;
   var notifyPrice = req.body.notifyPrice;
   var crawlingUrl = req.body.crawlingUrl;
   var email = req.body.email;
-  /*
-  var pUrl = req.body.pUrl;
-  var pLowest = req.body.pLowest;
-  var picUrl = req.body.picUrl;
-  var email = req.body.email;
-  */
+
   db.selectProduct(pName, function(err, rows) {
     if(rows) {
       // 조회된 상품이 있는경우
@@ -188,7 +196,6 @@ app.post("/login", function(req, res) {
   });
 });
 
-app.listen(3003, function(req, res) {
+/*app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
-    cron.batch();
-});
+});*/

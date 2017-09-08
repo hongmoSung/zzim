@@ -1,4 +1,4 @@
-var con = require("./db.js").con;
+var db = require('./ourDb.js');
 const async = require('async');
 var iconv = require('iconv-lite');
 const cheerio = require('cheerio');
@@ -7,16 +7,24 @@ const request = require('request');
 function cartCrawling(email, func) {
     var startTime = new Date().getTime();
     var websiteList = {};
-    var sql = "select * from tbl_logindata where email = ?";
+
     var task = [
         function (callback) {
-            con.query(sql, [email], function (err, rows, fields) {
-                rows.forEach(function (row, i) {
-                    websiteList[row.website] = row;
-                });
+            var sql = "select * from tbl_logindata where email = ?";
+            pool.getConnection(function(err, conn) {
+                if(err) {
+                    conn.release();
+                    return;
+                }
+                conn.query(sql, [email], function (err, rows, fields) {
+                    rows.forEach(function (row, i) {
+                        websiteList[row.website] = row;
+                    });
 
-                callback(null);
+                    callback(null);
+                });
             });
+
         }
     ];
 

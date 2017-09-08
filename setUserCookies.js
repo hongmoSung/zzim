@@ -1,32 +1,48 @@
-var con = require("./db.js").con;
+var db = require('./ourDb.js');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const async = require('async');
 var startTime
 var setUserCookies = function () {
     startTime = new Date().getTime();
-    var sql = "select email from tbl_user ";
-    con.query(sql, function (err, rows, fields) {
-        rows.forEach(function (row, i) {
-            console.log("email : ", row.email);
-            setCookies(row.email);
-        })
-    })
+
+    pool.getConnection(function(err, conn) {
+        if(err) {
+            conn.release();
+            return;
+        }
+        var sql = "select email from tbl_user ";
+        conn.query(sql, function (err, rows, fields) {
+            rows.forEach(function (row, i) {
+                console.log("email : ", row.email);
+                setCookies(row.email);
+            })
+        });
+    });
+
 }
 
 var setCookies = function (email) {
-    var sql = "select email, website, websiteId, AES_DECRYPT(UNHEX(websitePw), 'aes') as websitePw from tbl_logindata where email = ?";
+
     var websiteList = {};
     var task = [
         function (callback) {
-            con.query(sql, [email], function (err, rows, fields) {
-                rows.forEach(function (row, i) {
-                    var pwBuffer = new Buffer(row.websitePw);
-                    row.websitePw = pwBuffer.toString();
-                    websiteList[row.website] = row;
+            var sql = "select email, website, websiteId, AES_DECRYPT(UNHEX(websitePw), 'aes') as websitePw from tbl_logindata where email = ?";
+            pool.getConnection(function(err, conn) {
+                if(err) {
+                    conn.release();
+                    return;
+                }
+                conn.query(sql, [email], function (err, rows, fields) {
+                    rows.forEach(function (row, i) {
+                        var pwBuffer = new Buffer(row.websitePw);
+                        row.websitePw = pwBuffer.toString();
+                        websiteList[row.website] = row;
+                    });
+                    callback(null);
                 });
-                callback(null);
             });
+
 
         }
     ];
@@ -261,30 +277,44 @@ var setWebsiteCookies = function(loginData,CBfunc){
             driver.quit();
 
         }, function (loginData, webCookies,callback) {
-            var sql = "insert into tbl_loginData (email, website, websiteId, websitePw) values (?,?,?,HEX(AES_ENCRYPT(?,'aes')))";
-            con.query(sql, [loginData.email, loginData.website, loginData.websiteId, loginData.websitePw], function (err, result) {
-                if (err) {
-                    console.log("insert logindata err");
-                    console.log(err);
-                    next = false;
-                    callback(null,null,null);
-                } else {
-                    console.log("insert done");
-                    callback(null, loginData, webCookies);
-                }
+            pool.getConnection(function(err, conn) {
+                    if(err) {
+                        conn.release();
+                        return;
+                    }
+                var sql = "insert into tbl_loginData (email, website, websiteId, websitePw) values (?,?,?,HEX(AES_ENCRYPT(?,'aes')))";
+                con.query(sql, [loginData.email, loginData.website, loginData.websiteId, loginData.websitePw], function (err, result) {
+                    if (err) {
+                        console.log("insert logindata err");
+                        console.log(err);
+                        next = false;
+                        callback(null,null,null);
+                    } else {
+                        console.log("insert done");
+                        callback(null, loginData, webCookies);
+                    }
+                });
             });
+
         },
         function(loginData,webCookies,callback){
             console.log(next);
             if (next) {
-                var sql = "update tbl_logindata set cookies = ? where email = ? and website = ?";
-                con.query(sql, [webCookies, loginData.email, loginData.website], function (err, rows, fields) {
-                    if (err) {
-                        console.log("update cookies err");
-                        callback(err);
+                pool.getConnection(function(err, conn) {
+                    if(err) {
+                        conn.release();
+                        return;
                     }
-                    else callback(null);
+                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = ?";
+                    con.query(sql, [webCookies, loginData.email, loginData.website], function (err, rows, fields) {
+                        if (err) {
+                            console.log("update cookies err");
+                            callback(err);
+                        }
+                        else callback(null);
+                    });
                 });
+
             }else{
                 callback("err");
             }

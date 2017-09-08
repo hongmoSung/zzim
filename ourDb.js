@@ -11,16 +11,7 @@ password : 'password',
 database : 'server',
 debug : false
 });
-/*
-var pool = mysql.createPool({
-    connectionLimit : 10,
-    host : 'localhost',
-    user : 'hobby',
-    password : 'password',
-    database : 'hobby',
-    debug : false
-});
-*/
+
 // 상품 추가
 function addProduct(data, callback) {
   //console.log('addProduct 호출됨');
