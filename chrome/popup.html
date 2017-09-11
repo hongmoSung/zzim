@@ -3,16 +3,50 @@
   <head>
     <meta charset="utf-8">
     <title>zzim</title>
+    <style media="screen">
+      #trackBtn, #loginBtn {
+        background: none;
+        border: 2px solid #47b475;
+        color: #47b475;
+        transition: all 0.3s ease;
+        -webkit-transition: all 0.3s ease;
+        -moz-transition: all 0.3s ease;
+      }
+      #trackBtn, #loginBtn {
+        height: 50px;
+        line-height: 48px;
+        border: 2px solid #47b475;
+        background: #47b475;
+        color: #fff;
+        width: 100%;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+        border-radius: 0 !important;
+      }
+      #trackBtn, #loginBtn {
+        background: #fff;
+        color: #47b475;
+      }
+      #trackBtn, #loginBtn {
+        outline: none;
+      }
+      #trackBtn:hover, #loginBtn:hover {
+        background: #47b475;
+        color: #fff;
+      }
+    </style>
   </head>
-  <body style="padding: 10px;">
-    <div class="center-block feature bordered text-center" style="width: 300px;">
+  <body >
+    <div class="center-block feature bordered text-center" style="width: 300px; margin-bottom: 0px;">
       <h1 class="large uppercase">zzim</h1>
 
       <div id="loginDiv" style="display: none;">
         <form method="post" class="text-left">
           <input type="text" class="mb0" name="email" placeholder="email">
           <input type="text" class="mb0" name="password" placeholder="password">
-          <button type="button" class="btn btn-lg btn-filled" name="loginBtn">로그인</button>
+          <button type="button" class="btn btn-lg btn-filled" name="loginBtn" id="loginBtn">로그인</button>
         </form>
       </div>
 

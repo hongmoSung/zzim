@@ -33,11 +33,10 @@ chrome.tabs.getSelected(null, function(tab){
           })
           .done(function(result) {
             if(result.err) {
-              alert('조회 실패!');
+              //alert('조회 실패!');
               $('#reSearchDiv').css('display', 'block');
             } else {
-              alert('조회성공!');
-
+              //alert('조회성공!');
               var p = result;
               console.log("info ::: ", p);
 
@@ -45,19 +44,21 @@ chrome.tabs.getSelected(null, function(tab){
               $("#urlDiv").css("display", "none");
               html = "";
               html += '<div class="image-tile outer-title text-center">';
-              html += "   <img src='" + p.picUrl +"' height='140px;'/>";
+              html += "   <img class='product-thumb' src='" + p.picUrl +"' height='140px;'/>";
               html += '   <div class="title">';
               html += '     <h5 class="title">' + p.pName + '</h5>';
               html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
               html += '   </div>';
-              html += '   <form class="text-left">';
+              html += '   <form class="text-left" onsubmit="return false;">';
               html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
               html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
               //html += '     <input class="hollow" type="submit" onsubmit="return false;" value="Start tracking!!">';
               //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
               html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
+              // html += '     <input type="submit" class="hollow" id="trackBtn" value="Start tracking!!" />';
               html += '   </form>';
-              html += '     <button type="button" class="btn btn-lg btn-filled" id="goToLogin">아이디 재설정</button>';
+              //html += '     <button type="button" class="btn btn-lg btn-filled" id="goToLogin">아이디 재설정</button>';
+            html += '     <a id = "goToLogin" href="#">아이디 재설정</a>';
               html += '</div>';
               $("#productInfo").html(html);
               $("#productInfo").css("display", "block");
@@ -128,12 +129,12 @@ $('#productInfo').on("click", "#trackBtn", function() {
   var crawlingUrl = $("#crawlingUrl").val();
 
   if(notifyPrice == "") {
-    swal("알림가격을 입력해주세요");
+    alert("알림가격을 입력해주세요");
     return;
   }
 
   if(isNaN(notifyPrice)){
-      swal("알림가격은 숫자만 입력 가능합니다.");
+      alert("알림가격은 숫자만 입력 가능합니다.");
       return;
   };
 
@@ -168,11 +169,11 @@ $("button[name='loginBtn']").click(function() {
   var password = $("input[name='password']").val();
 
   if(email == "") {
-    swal("email 을 입력 해주세요");
+    alert("email 을 입력 해주세요");
     return;
   }
   if(password == "") {
-    swal("password 를 입력 해주세요");
+    alert("password 를 입력 해주세요");
     return;
   }
 
@@ -195,7 +196,7 @@ $("button[name='loginBtn']").click(function() {
       $("#urlDiv").css("display", "block");
       $("#loginDiv").css("display", "none");
     }
-    swal(result.msg);
+    alert(result.msg);
     console.log(result);
   });
   return false;
