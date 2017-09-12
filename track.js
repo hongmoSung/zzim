@@ -158,6 +158,9 @@ function track(url, callback) {
         // 회사 코드
         var cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
         //console.log('cmpnyc :::::::::::::::::::::::::::: ', cmpnyc);
+        // 1. db에서 cmpnyc를 조회
+        // 2 -A. 조회가 된경우, cmpnyc와 link_pconde를 조합하여 상품의 url을 pUrl에 저장
+        // 2 -B. 조회가 안된경우, selenium으로 pUrl에 들어가서 원래의 url을 가져와 데이터베이스에 cmpnyc에 저장,
 
         var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
         var link_pcode = b[0];
