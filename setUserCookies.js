@@ -2,8 +2,10 @@ var db = require('./ourDb.js');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const async = require('async');
-var startTime
+require('events').EventEmitter.prototype._maxListeners = 100;
 
+
+var startTime
 
 var setUserCookies = function () {
     startTime = new Date().getTime();
@@ -42,7 +44,6 @@ var setCookies = function (email) {
                         row.websitePw = pwBuffer.toString();
                         websiteList[row.website] = row;
                     });
-                    console.log("Asdasdasdasdasd");
                     console.log(email);
                     console.log(websiteList);
                     callback(null);
@@ -363,5 +364,7 @@ var setWebsiteCookies = function(loginData,CBfunc){
         }
     });
 }
+process.setMaxListeners(100);
+
 module.exports.setWebsiteCookies = setWebsiteCookies;
 module.exports.setUserCookies = setUserCookies;
