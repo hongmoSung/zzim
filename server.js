@@ -21,6 +21,9 @@ var options = {
     ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
 };
 
+
+
+
 var https = require('https');
 https.createServer(options,app).listen(3003,function () {
     console.log("3003 running");
@@ -34,9 +37,7 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-app.get("/", function(req, res) {
-    console.log("////");
-});
+
 app.post("/track", function(req, res) {
     var url = req.body.url;
     tr.chase(url, function(result) {
