@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>zzim</title>
     <style media="screen">
-      #trackBtn, #loginBtn {
+      #trackBtn, #loginBtn, #reSearchBtn {
         background: none;
         border: 2px solid #47b475;
         color: #47b475;
@@ -12,7 +12,7 @@
         -webkit-transition: all 0.3s ease;
         -moz-transition: all 0.3s ease;
       }
-      #trackBtn, #loginBtn {
+      #trackBtn, #loginBtn, #reSearchBtn {
         height: 50px;
         line-height: 48px;
         border: 2px solid #47b475;
@@ -25,14 +25,14 @@
         letter-spacing: 1px;
         border-radius: 0 !important;
       }
-      #trackBtn, #loginBtn {
+      #trackBtn, #loginBtn, #reSearchBtn {
         background: #fff;
         color: #47b475;
       }
-      #trackBtn, #loginBtn {
+      #trackBtn, #loginBtn, #reSearchBtn {
         outline: none;
       }
-      #trackBtn:hover, #loginBtn:hover {
+      #trackBtn:hover, #loginBtn:hover, #reSearchBtn:hover {
         background: #47b475;
         color: #fff;
       }
@@ -56,7 +56,7 @@
         <h5>정확한 상품명을 입력해주세요</h5>
         <form method="post" class="text-left">
           상품명 : <input type="text" name="reSrachTitle" placeholder="ex) 삼성 노트북9 NT900X5L-K24W">
-          <button type="button" name="reSearchBtn" class="btn btn-lg btn-filled">검색하기</button>
+          <button type="button" id="reSearchBtn" name="reSearchBtn" class="btn btn-lg btn-filled">검색하기</button>
         </form>
       </div>
 
