@@ -50,10 +50,12 @@ chrome.tabs.getSelected(null, function(tab){
               html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
               html += '   </div>';
               html += '   <form class="text-left" onsubmit="return false;">';
+              //html += '   <div class = "rangeslider rangeslider--horizontal">';
+              html += '     <input id="range" type="range" data-rangeslider >';
+              // html += '   </div>';
+              html += '     <h5 class="title text-center" id="priceInfo" class="mb0"></h5>';
               html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
               html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
-              //html += '     <input class="hollow" type="submit" onsubmit="return false;" value="Start tracking!!">';
-              //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
               html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
               // html += '     <input type="submit" class="hollow" id="trackBtn" value="Start tracking!!" />';
               html += '   </form>';
@@ -62,6 +64,12 @@ chrome.tabs.getSelected(null, function(tab){
               html += '</div>';
               $("#productInfo").html(html);
               $("#productInfo").css("display", "block");
+              var rangeVar = p.pLowest.trim().replace(/,/gi, '');
+              $('input[type="range"]').attr('max', rangeVar);
+              $('input[type="range"]').attr('min', 0);
+              $('input[type="range"]').attr('value', rangeVar);
+              $('input[type="range"]').attr('step', rangeVar / 100);
+              setting(rangeVar);
             }
           });
         }
@@ -69,6 +77,83 @@ chrome.tabs.getSelected(null, function(tab){
 
   })();
 
+function setting(pLowest) {
+  var $document = $(document);
+  var selector = '[data-rangeslider]';
+  var $element = $(selector);
+  // For ie8 support
+  var textContent = ('textContent' in document) ? 'textContent' : 'innerText';
+  // Example functionality to demonstrate a value feedback
+
+  function valueOutput(element) {
+      var value = element.value;
+      var percent = value / (element.step);
+      //var output = element.parentNode.getElementsByTagName('output')[0] || element.parentNode.parentNode.getElementsByTagName('output')[0];
+      //var output = element.parentNode.getElementById('priceInfo')[0] || element.parentNode.parentNode.getElementById('priceInfo')[0];
+      $('#priceInfo').text(percent + '%' + '   -' + (pLowest - value));
+      //output[textContent] = percent + '%' + '   -' + (pLowest - value);
+      if(percent <= 50) {
+          $('#priceInfo').css('color', 'red');
+      } else {
+        $('#priceInfo').css('color', 'black');
+      }
+      $('input[name="notifyPrice"]').val(value);
+  }
+  $document.on('input', 'input[type="range"], ' + selector, function(e) {
+      valueOutput(e.target);
+  });
+
+  $("#productInfo").on("keyup", "input[name='notifyPrice']", function() {
+      var notifyPrice = $('input[name="notifyPrice"]').val();
+      var percent = parseInt(notifyPrice / pLowest * 100);
+      if(isNaN(notifyPrice)){
+          alert("알림가격은 숫자만 입력 가능합니다.");
+          $('input[name="notifyPrice"]').val('');
+          return;
+      };
+
+      if(parseInt(notifyPrice) >= parseInt(pLowest)) {
+        notifyPrice = pLowest;
+        console.log('here');
+        $('.rangeslider__handle').attr('style', 'left:' + 230 +'px;');
+        $('.rangeslider__fill').attr('style', 'width:' + 240 + 'px;');
+        $('#priceInfo').text(100 + '%' + '   -' + 0);
+        $('input[name="notifyPrice"]').val(pLowest);
+      } else {
+        console.log('here2');
+        var a = notifyPrice/ pLowest * 230;
+        var b = notifyPrice/ pLowest * 240;
+        console.dir($('.rangeslider__handle'));
+        $('#priceInfo').text(percent + '%' + '   -' + (pLowest - notifyPrice));
+        $('.rangeslider__handle').attr('style', 'left:' + a +'px;');
+        $('.rangeslider__fill').attr('style', 'width:' + b + 'px;');
+      }
+      if(percent <= 50) {
+          $('#priceInfo').css('color', 'red');
+      } else {
+        $('#priceInfo').css('color', 'black');
+      }
+  });
+  // Basic rangeslider initialization
+  $element.rangeslider({
+      // Deactivate the feature detection
+      polyfill: false,
+      // Callback function
+      onInit: function() {
+          valueOutput(this.$element[0]);
+      },
+      // Callback function
+      onSlide: function(position, value) {
+          // console.log('onSlide');
+          // console.log('position: ' + position, 'value: ' + value);
+      },
+      // Callback function
+      onSlideEnd: function(position, value) {
+           console.log('onSlideEnd');
+           console.log('position: ' + position, 'value: ' + value);
+      }
+  });
+}
   $('button[name="reSearchBtn"]').click(function() {
     //console.log('재검색....');
     var reSearchTitle = $('input[name="reSrachTitle"]').val();
