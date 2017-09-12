@@ -54,13 +54,15 @@ function chase(url, func) {
             };
             var formData = qs.stringify(form);
             var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
-            //console.log('googleSearchUrl:::::::::::: ' + googleSearchUrl);
+            console.log('googleSearchUrl:::::::::::: ' + googleSearchUrl);
             var param = {};
             client.fetch(googleSearchUrl, param, function (err, $, res) {
+                console.log("$:",$);
                 var url = $('cite._Rm').html();
-                //console.log('url :::::::::::::::::::::::: ', url);
-                if(url == null || 'undefined') {
-                  console.log('구글 검색 결과가ㅣ 없습니다.......................');
+                url += '';
+                console.log('url :::::::::::::::::::::::: ', url);
+                if(url.indexOf('prod') == -1) {
+                  console.log('구글 검색 결과가 없습니다.......................');
                   callback(null, 'err');
                 } else {
                   url = "http://"+url;

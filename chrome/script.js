@@ -25,7 +25,7 @@ chrome.tabs.getSelected(null, function(tab){
             type: 'post',
             headers: {"Content-Type": "application/json; charset=UTF-8",
             "X-HTTP-Method-Override": "POST" },
-            url: 'http://localhost:3003/track',
+            url: 'https://zzim-node.zz.am:3003/track',
             data: JSON.stringify({
               url : tab.url
             }),
@@ -167,7 +167,7 @@ function setting(pLowest) {
       type: 'post',
       headers: {"Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST" },
-      url: "http://localhost:3003/reSearch",
+      url: "https://zzim-node.zz.am:3003/reSearch",
       data: JSON.stringify({
         reSearchTitle : reSearchTitle,
         url : tab.url
