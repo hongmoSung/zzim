@@ -25,7 +25,7 @@ chrome.tabs.getSelected(null, function(tab){
             type: 'post',
             headers: {"Content-Type": "application/json; charset=UTF-8",
             "X-HTTP-Method-Override": "POST" },
-            url: 'https://zzim-node.zz.am:3003/track',
+            url: 'http://localhost:3003/track',
             data: JSON.stringify({
               url : tab.url
             }),
@@ -60,7 +60,7 @@ chrome.tabs.getSelected(null, function(tab){
               // html += '     <input type="submit" class="hollow" id="trackBtn" value="Start tracking!!" />';
               html += '   </form>';
               //html += '     <button type="button" class="btn btn-lg btn-filled" id="goToLogin">아이디 재설정</button>';
-            html += '     <a id = "goToLogin" href="#">아이디 재설정</a>';
+              html += '     <a id = "goToLogin" href="#">아이디 재설정</a>';
               html += '</div>';
               $("#productInfo").html(html);
               $("#productInfo").css("display", "block");
@@ -86,12 +86,9 @@ function setting(pLowest) {
   // Example functionality to demonstrate a value feedback
 
   function valueOutput(element) {
-      var value = element.value;
-      var percent = value / (element.step);
-      //var output = element.parentNode.getElementsByTagName('output')[0] || element.parentNode.parentNode.getElementsByTagName('output')[0];
-      //var output = element.parentNode.getElementById('priceInfo')[0] || element.parentNode.parentNode.getElementById('priceInfo')[0];
-      $('#priceInfo').text(percent + '%' + '   -' + (pLowest - value));
-      //output[textContent] = percent + '%' + '   -' + (pLowest - value);
+      var value = parseInt(element.value);
+      var percent = parseInt(value / (element.step));
+      $('#priceInfo').text(percent + '%' + '   -' + parseInt(pLowest - value));
       if(percent <= 50) {
           $('#priceInfo').css('color', 'red');
       } else {
@@ -149,8 +146,8 @@ function setting(pLowest) {
       },
       // Callback function
       onSlideEnd: function(position, value) {
-           console.log('onSlideEnd');
-           console.log('position: ' + position, 'value: ' + value);
+          //  console.log('onSlideEnd');
+          //  console.log('position: ' + position, 'value: ' + value);
       }
   });
 }
@@ -167,7 +164,7 @@ function setting(pLowest) {
       type: 'post',
       headers: {"Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST" },
-      url: "https://zzim-node.zz.am:3003/reSearch",
+      url: "http://localhost:3003/reSearch",
       data: JSON.stringify({
         reSearchTitle : reSearchTitle,
         url : tab.url
@@ -192,15 +189,21 @@ function setting(pLowest) {
         html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
         html += '   </div>';
         html += '   <form class="text-left">';
+        html += '     <input id="range" type="range" data-rangeslider >';
+        html += '     <h5 class="title text-center" id="priceInfo" class="mb0"></h5>';
         html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
         html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
-        //html += '     <input class="hollow" type="submit" onsubmit="return false;" value="Start tracking!!">';
-        //html += '     <button id="trackBtn" class="btn btn-lg btn-filled" type="button">Start tracking!!</button>';
         html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
         html += '   </form>';
         html += '</div>';
         $("#productInfo").html(html);
         $("#productInfo").css("display", "block");
+        var rangeVar = p.pLowest.trim().replace(/,/gi, '');
+        $('input[type="range"]').attr('max', rangeVar);
+        $('input[type="range"]').attr('min', 0);
+        $('input[type="range"]').attr('value', rangeVar);
+        $('input[type="range"]').attr('step', rangeVar / 100);
+        setting(rangeVar);
       }
     });
   });

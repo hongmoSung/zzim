@@ -8,6 +8,7 @@ var CryptoJS = require("crypto-js");
 var cart = require('./cart');
 var setCookies = require('./setUserCookies');
 var  fs = require("fs");
+require('date-utils');
 process.setMaxListeners(100);
 
 /*var options = {
@@ -15,6 +16,7 @@ process.setMaxListeners(100);
     cert: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.crt.pem'),
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };*/
+/*
 var options = {
     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
@@ -29,7 +31,7 @@ https.createServer(options,app).listen(3003,function () {
     console.log("3003 running");
     cron.batch();
 })
-
+*/
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(function (req, res, next) {
@@ -47,7 +49,6 @@ app.post("/track", function(req, res) {
 
 app.post('/cart', function (request, response) {
     var email = request.body.email;
-    console.log("/cart :: email ::",email);
     cart.cartCrawling(email, function (result) {
         console.log(result);
         response.status(200).json(result);
@@ -67,7 +68,7 @@ app.post('/checkEmail',function(request,response){
     })
 });
 app.post("/addDB", function(req, res) {
-
+  //console.log('addDB');
   var pName = req.body.pName;
   var notifyPrice = req.body.notifyPrice;
   var crawlingUrl = req.body.crawlingUrl;
@@ -77,17 +78,17 @@ app.post("/addDB", function(req, res) {
     if(rows) {
       // 조회된 상품이 있는경우
       var pNo = rows[0].pNo;
-      console.log('이미 등록된 상품');
+      // console.log('이미 등록된 상품');
       // tracking 추가
       db.checkTracking(email, pNo, function(err, rows) {
         if(rows) {
-          console.log('이미 트렉킹중인 제품');
+          // console.log('이미 트렉킹중인 제품');
           res.send({
           result: false,
           msg: "이미 트렉킹중인 제품"
           });
         } else {
-          console.log('트레킹중이 아닌제품');
+          // console.log('트레킹중이 아닌제품');
           db.addTracking(email, pNo, notifyPrice, function(err, result) {
             if(err) {
               res.send({
@@ -98,13 +99,13 @@ app.post("/addDB", function(req, res) {
             }
 
             if(result) {
-              console.log('트렉킹 성공');
+              // console.log('트렉킹 성공');
               res.send({
                 result: true,
                 msg: "트렉킹 성공"
               });
             } else {
-              console.log('트렉킹 실패');
+              // console.log('트렉킹 실패');
               res.send({
                 result: false,
                 msg: "트렉킹 실패"
@@ -115,9 +116,10 @@ app.post("/addDB", function(req, res) {
       });
     } else {
       // 조회된 상품이 없는경우
-      console.log('조회된 상품이 없습니다.');
+      // console.log('조회된 상품이 없습니다.');
       tr.track(crawlingUrl, function(err, result) {
         var data = result;
+        console.log('data .................', data);
         db.addProduct(data, function(err, result) {
           if(err) {
             console.log('addProduct err');
@@ -130,13 +132,13 @@ app.post("/addDB", function(req, res) {
                 db.addTracking(email, pNo, notifyPrice, function(err, result) {
                   if(err) {throw err}
                   if(result) {
-                    console.log('트렉킹 성공');
+                    // console.log('트렉킹 성공');
                     res.send({
                     result: true,
                     msg: "트렉킹 성공"
                     });
                   } else {
-                    console.log('트렉킹 실패');
+                    // console.log('트렉킹 실패');
                     res.send({
                     result: false,
                     msg: "트렉킹 실패"
@@ -146,7 +148,7 @@ app.post("/addDB", function(req, res) {
               }
             });
           } else {
-            console.log("등록 실패");
+            // console.log("등록 실패");
             res.send({
             result: false,
             msg: "트렉킹 실패"
@@ -159,12 +161,10 @@ app.post("/addDB", function(req, res) {
 });
 
 app.post("/reSearch", function(req, res) {
-  console.log('reSearch 서버......');
   var reSearchTitle = req.body.reSearchTitle;
   var url = req.body.url;
-  console.log('server에서의 reSearchTitle ::::', reSearchTitle);
   tr.reSearch(reSearchTitle, url, function(result) {
-    console.log('result ::::::::::::::', result);
+    // console.log('result ::::::::'. result);
     res.send(result);
   });
 });
@@ -177,9 +177,7 @@ app.post("/login", function(req, res) {
     if(rows) {
       var email = rows[0].email;
       var password = rows[0].password;
-      //console.log('::::::::::::::::::::::::::::', password.toString());
       var result = (inputPW == password.toString());
-      //console.log('result::::::::::::::::::::::::::::', result);
       if(result) {
         res.send({
           result:true,
@@ -203,6 +201,7 @@ app.post("/login", function(req, res) {
   });
 });
 
-/*app.listen(3003, function(req, res) {
+app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
-});*/
+    cron.batch();
+});

@@ -3,14 +3,43 @@ var tr = require('./track.js');
 var fire = require('./fcm.js');
 
 
+// var pool = mysql.createPool({
+//     connectionLimit: 500,
+//     host: '192.168.0.11', port: 3306,
+//     user: 'server',
+//     password: 'password',
+//     database: 'server',
+//     debug: false
+// });
 var pool = mysql.createPool({
     connectionLimit: 500,
-    host: '192.168.0.11', port: 3306,
-    user: 'server',
+    host: 'localhost', port: 3306,
+    user: 'hobby',
     password: 'password',
-    database: 'server',
+    database: 'hobby',
     debug: false
 });
+
+// site 추가
+function addSite(data, callback) {
+  //console.log('addSite:::::::::::');
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    var exec = conn.query('insert into tbl_site set ?', data, function(err, result) {
+      conn.release();
+      if(err) {
+        console.log('SQL 실행 시 오류 발생함.');
+        callback(err, null);
+        return;
+      } else {
+        callback(null, result);
+      }
+    });
+  });
+}
 
 // 상품 추가
 function addProduct(data, callback) {
@@ -125,7 +154,7 @@ function checkTracking(email, pNo, callback) {
   });
 }
 
-// 트렉킹 테이블 조회ghdah30
+// 트렉킹 테이블 조회
 function selectTracking(pNo, callback) {
   //console.log('selectTracking 호출됨');
   //console.log('pNo...........................', pNo);
@@ -144,6 +173,27 @@ function selectTracking(pNo, callback) {
       } else {
         var err = {};
         //console.log('pNo[%s] 번호 제품을 tracking 하는 사람이 없습니다.', pNo);
+        callback(err, null);
+      }
+    });
+  });
+}
+// 사이트 테이블 조회
+function selectSite(cmpnyc, callback) {
+  pool.getConnection(function(err, conn) {
+    if(err) {
+      conn.release();
+      return;
+    }
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+    var exec = conn.query('select cmpnyc, cmpnyUrl from tbl_site where cmpnyc = ?',
+                          [cmpnyc], function(err, rows, fields) {
+      //console.log('실행 대상 SQL : ' + exec.sql);
+      conn.release();
+      if(rows.length > 0) {
+        callback(null, rows);
+      } else {
+        var err = {};
         callback(err, null);
       }
     });
@@ -244,14 +294,14 @@ function selectToken(data, callback) {
 }
 // 상품 조회
 function selectProduct(pName, callback) {
-  console.log('selectProduct 호출됨');
+  //console.log('selectProduct 호출됨');
 
   pool.getConnection(function(err, conn) {
     if(err) {
       conn.release();
       return;
     }
-    console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
+    //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
 
     var columns = ['pNo'];
     var tableName = 'tbl_product';
@@ -259,17 +309,17 @@ function selectProduct(pName, callback) {
     var exec = conn.query('select ?? from ?? where pName = ?',
                           [columns, tableName, pName], function(err, rows, fields) {
       conn.release();
-      console.log('실행 대상 SQL : ' + exec.sql);
+      //console.log('실행 대상 SQL : ' + exec.sql);
 
       if(rows.length > 0) {
-        console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
+        //console.log('pName[%s] 가 일치하는 상품 찾음.', pName);
         rows.forEach(function (row, i) {
           //result = {"pNo": row.pNo, "productChk": "success"};
           //console.log("db에서의 result", result);
           callback(null, rows);
       	});
       } else {
-        console.log('일치하는 제품을 찾지 못함');
+        //console.log('일치하는 제품을 찾지 못함');
         //result = {"productChk": "fail"};
         callback(err, null);
       }
@@ -297,24 +347,26 @@ function selectAllProduct(callback) {
           a[i] = row;
           ////////////////////////////////////////////////////////////////////////////////////////
           tr.cronCrawling(a[i].crawlingUrl, function(err, product) {
+            if(err) {
+              console.log('cronCrawling err');
+              callback(err, null);
+              return;
+            }
             product.pNo = a[i].pNo;
             addHistory(product, function(err, result) {
             if(result.affectedRows == 1) {
               if(a[i].pLowest == product.pLowest) {
                 //console.log('가격변동이 없음', product.pNo);
               } else {
-                console.log('가격변동', product.pNo);
+                //console.log('가격변동', product.pNo);
                 updateProduct(product, function(err, result) {
                   if(result) {
-                    console.log('알람을 주기위해 selectTracking::::::::::::::::::::::::', product.pNo);
                     selectTracking(product.pNo, function(err, rows, fields) {
                       if(rows) {
-                        console.log('알람을 주기위해2 selectTracking::::::::::::::::::::::::', product.pNo);
                         var data = rows;
                         selectToken(rows, function(err, rows) {
                           var tokenArr = [];
                           if(rows) {
-                            console.log('알람을 주기위해3 selectTracking::::::::::::::::::::::::', product.pNo);
                             rows.forEach(function (row, i) {
                               tokenArr.push(row.token);
                           	});
@@ -322,8 +374,8 @@ function selectAllProduct(callback) {
                           fire.sendNotification(product.pName, tokenArr);
                         });
                       } else {
-                        //console.log('tracking없는거');
-                        callback(err, null);
+                        //console.log('tracking없는제품');
+                        callback(null, result);
                       }
                     });
                     ////////////////////////////////////
@@ -356,4 +408,6 @@ module.exports.checkTracking = checkTracking;
 module.exports.selectUser = selectUser;
 module.exports.selectAllProduct = selectAllProduct;
 module.exports.selectProduct = selectProduct;
+module.exports.selectSite = selectSite;
+module.exports.addSite = addSite;
 module.exports.pool = pool;
