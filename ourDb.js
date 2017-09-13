@@ -3,22 +3,15 @@ var tr = require('./track.js');
 var fire = require('./fcm.js');
 
 
-// var pool = mysql.createPool({
-//     connectionLimit: 500,
-//     host: '192.168.0.11', port: 3306,
-//     user: 'server',
-//     password: 'password',
-//     database: 'server',
-//     debug: false
-// });
 var pool = mysql.createPool({
     connectionLimit: 500,
-    host: 'localhost', port: 3306,
-    user: 'hobby',
+    host: '192.168.0.11', port: 3306,
+    user: 'server',
     password: 'password',
-    database: 'hobby',
+    database: 'server',
     debug: false
 });
+
 
 // site 추가
 function addSite(data, callback) {

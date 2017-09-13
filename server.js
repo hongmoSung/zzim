@@ -16,22 +16,19 @@ process.setMaxListeners(100);
     cert: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.crt.pem'),
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };*/
-/*
+
 var options = {
     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
     ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
 };
 
-
-
-
 var https = require('https');
 https.createServer(options,app).listen(3003,function () {
     console.log("3003 running");
     cron.batch();
 })
-*/
+
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(function (req, res, next) {
@@ -115,8 +112,6 @@ app.post("/addDB", function(req, res) {
         }
       });
     } else {
-      // 조회된 상품이 없는경우
-      // console.log('조회된 상품이 없습니다.');
       tr.track(crawlingUrl, function(err, result) {
         var data = result;
         console.log('data .................', data);
@@ -125,7 +120,6 @@ app.post("/addDB", function(req, res) {
             console.log('addProduct err');
           }
           if(result) {
-            //console.log("상품등록 성공");
             db.selectProduct(pName, function(err, rows) {
               var pNo = rows[0].pNo;
               if(rows) {
@@ -201,7 +195,7 @@ app.post("/login", function(req, res) {
   });
 });
 
-app.listen(3003, function(req, res) {
+/*app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
     cron.batch();
-});
+});*/

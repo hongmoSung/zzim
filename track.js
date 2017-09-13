@@ -87,7 +87,7 @@ function chase(url, func) {
                     'err': true
                 };
                 callback(null, item);
-            }else{
+            } else {
                 var option = {
                     method: "GET",
                     url: url,
@@ -132,129 +132,117 @@ function track(url, callback) {
     var cmpnyc = '';
     var cmpnyUrl = '';
     var task = [
-      function(callback) {
-        var option = {
-            method: "GET",
-            url: url,
-            headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-            encoding: null
-        };
-        request(option, function (err, res, body) {
-            var strContents = new Buffer(body);
-            body = iconv.decode(strContents, 'EUC-KR').toString();
-            $ = cheerio.load(body);
+        function (callback) {
+            var option = {
+                method: "GET",
+                url: url,
+                headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
+                encoding: null
+            };
+            request(option, function (err, res, body) {
+                var strContents = new Buffer(body);
+                body = iconv.decode(strContents, 'EUC-KR').toString();
+                $ = cheerio.load(body);
 
-            var pLowest = $('div.goods_detail_area > div.goods_buy_line > a > span.big_price').text().trim().replace(/,/gi, '');
-            var pName = $('p.goods_title').text().trim();
-            var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
-            var picUrl = $('#img_areas > a > img').attr('src');
-            var crawlingUrl = url;
+                var pLowest = $('div.goods_detail_area > div.goods_buy_line > a > span.big_price').text().trim().replace(/,/gi, '');
+                var pName = $('p.goods_title').text().trim();
+                var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
+                var picUrl = $('#img_areas > a > img').attr('src');
+                var crawlingUrl = url;
 
-            cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
+                cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
 
-            var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
-            var link_pcode = b[0];
-            console.log('link_pcode::::::::::::::::::', link_pcode);
-            var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
-            pcode = c[0];
+                var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
+                var link_pcode = b[0];
+                console.log('link_pcode::::::::::::::::::', link_pcode);
+                var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
+                pcode = c[0];
 
-            var flag = false;
+                var flag = false;
 
-            product = {
-              'pName': pName,
-              'pUrl': pUrl,
-              'pLowest': pLowest,
-              'picUrl': picUrl,
-              'crawlingUrl': crawlingUrl
-            }
+                product = {
+                    'pName': pName,
+                    'pUrl': pUrl,
+                    'pLowest': pLowest,
+                    'picUrl': picUrl,
+                    'crawlingUrl': crawlingUrl
+                }
 
-            switch (cmpnyc) {
-                case 'EE128':
-                    //console.log('gmarket::::::::::::::');
-                    product.pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
-                    flag = true;
-                    break;
-                case 'TH201':
-                    //console.log('11st::::::::::::::');
-                    product.pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
-                    flag = true;
-                    break;
-                case 'EE715':
-                    //console.log('auction::::::::::::::');
-                    product.pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
-                    flag = true;
-                    break;
-                case 'TN920':
-                    //console.log('tmon::::::::::::::');
-                    product.pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
-                    flag = true;
-                    break;
-                case 'TN729':
-                    //console.log('위메프::::::::::::::');
-                    if(link_pcode.indexOf('_') != -1) {
-                      var we = link_pcode.split('_');
-                      link_pcode = we[1];
+                switch (cmpnyc) {
+                    case 'EE128':
+                        product.pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
+                        flag = true;
+                        break;
+                    case 'TH201':
+                        product.pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
+                        flag = true;
+                        break;
+                    case 'EE715':
+                        product.pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
+                        flag = true;
+                        break;
+                    case 'TN920':
+                        product.pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
+                        flag = true;
+                        break;
+                    case 'TN729':
+                        if (link_pcode.indexOf('_') != -1) {
+                            var we = link_pcode.split('_');
+                            link_pcode = we[1];
+                        }
+                        product.pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
+                        flag = true;
+                        break;
+                    case 'ED910':
+                        product.pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
+                        flag = true;
+                        break;
+                    default:
+                }
+                callback(null, cmpnyc, flag)
+            });
+
+        },
+        function (cmpnyc, flag, callback) {
+            if (!flag) {
+                db.selectSite(cmpnyc, function (err, rows) {
+                    if (rows) {
+                        cmpnyUrl = rows[0].cmpnyUrl;
+                        product.pUrl = cmpnyUrl + '?nProdCode=' + pcode;
+                        console.log('pUrl ************************ ', product.pUrl);
+                        flag = true;
+                        callback(null, flag);
+                    } else {
+                        var data = {
+                            'url': url,
+                            'pcode': pcode,
+                            'cmpnyc': cmpnyc
+                        }
+                        selenium.getSiteUrl(data, function (err, result) {
+                            if (err) {
+                                console.log("seleninum.getStieUrl :: error");
+                                callback("err");
+                            } else {
+                                console.log('result::::::::::::::', result);
+                                product.pUrl = result;
+                                callback(null);
+                            }
+                        });
                     }
-                    product.pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
-                    flag = true;
-                    break;
-                case 'ED910':
-                    //console.log('인터파크::::::::::::::');
-                    product.pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
-                    flag = true;
-                    break;
-                default:
-            }
-            callback(null, cmpnyc, flag)
-        });
-
-      },
-      function(cmpnyc, flag, callback) {
-        // console.log('ssibal');
-        if(!flag) {
-          db.selectSite(cmpnyc, function(err, rows) {
-            if(rows) {
-              //console.log('rows::::::::::::::::::::::', rows);
-              //console.log('pcode ::::::::::::::::', pcode);
-              //console.log(rows[0].cmpnyc);
-              //var cmpny = rows[0].cmpnyc;
-              cmpnyUrl = rows[0].cmpnyUrl;
-              product.pUrl = cmpnyUrl + '?nProdCode=' + pcode;
-              console.log('pUrl ************************ ', product.pUrl);
+                });
             } else {
-              flag = false;
-              console.log('대기업');
+                console.log("seleinum 실행 안돼시발");
+                callback(null);
             }
-          });
+
         }
-        callback(null, flag);
-      },
-      function(flag, callback) {
-        var data = {
-          'url': url,
-          'pcode': pcode,
-          'cmpnyc': cmpnyc
-        }
-        if(!flag) {
-          selenium.getSiteUrl(data, function(err, result) {
-            if(result) {
-                console.log('result::::::::::::::', result);
-                product.pUrl = result;
-                callback(null, product);
-            }
-          });
-        } else {
-          console.log('대기업2');
-          callback(null, product);
-        }
-      }
     ];
-    async.waterfall(task, function (err, result) {
+    async.waterfall(task, function (err) {
         if (err) {
-          console.log('err');
-          callback(err, null);
+            console.log('err');
+            callback(err, null);
         } else {
-          callback(null, result);
+            callback(null, product);
         }
     });
 }
@@ -290,64 +278,64 @@ function reSearch(title, url, func) {
                     encoding: null
                 };
                 request(option, function (err, res, body) {
-                  var strContents = new Buffer(body);
-                  body = iconv.decode(strContents, 'utf-8').toString();
-                  $ = cheerio.load(body);
-                  var url = $('cite._Rm').html();
-                  //console.log('url :::::::::::::::::::::::: ', url);
-                  if (url.indexOf('prod') == -1) {
-                      // console.log('구글 검색 결과가ㅣ 없습니다.......................');
-                      callback(null, 'err');
-                  } else {
-                      url = "http://" + url;
-                      //console.log('url :::::::::::::::::::::::: ', url);
-                      if (url.indexOf('prod') != -1) {
-                          // console.log('내가 원하는 주소.....');
-                          callback(null, url);
-                      } else {
-                          // console.log('재입력조차 유효하지 않는 상품명...');
-                          callback(null, 'err2');
-                      }
-                  }
+                    var strContents = new Buffer(body);
+                    body = iconv.decode(strContents, 'utf-8').toString();
+                    $ = cheerio.load(body);
+                    var url = $('cite._Rm').html();
+                    //console.log('url :::::::::::::::::::::::: ', url);
+                    if (url.indexOf('prod') == -1) {
+                        // console.log('구글 검색 결과가ㅣ 없습니다.......................');
+                        callback(null, 'err');
+                    } else {
+                        url = "http://" + url;
+                        //console.log('url :::::::::::::::::::::::: ', url);
+                        if (url.indexOf('prod') != -1) {
+                            // console.log('내가 원하는 주소.....');
+                            callback(null, url);
+                        } else {
+                            // console.log('재입력조차 유효하지 않는 상품명...');
+                            callback(null, 'err2');
+                        }
+                    }
                 });
             });
         },
         function (url, callback) {
-          // console.log('url ::::::::::::::', url);
-          if( url == 'err' || url == 'err2') {
-            // console.log('에러 처리 ..................');
-            var item = {
-                'err': true
-            };
-            callback(null, item);
-          } else {
-            var option = {
-                method: "GET",
-                url: url,
-                headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-                encoding: null
-            };
-            request(option, function (err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    var strContents = new Buffer(body);
-                    body = iconv.decode(strContents, 'EUC-KR').toString();
-                    $ = cheerio.load(body);
+            // console.log('url ::::::::::::::', url);
+            if (url == 'err' || url == 'err2') {
+                // console.log('에러 처리 ..................');
+                var item = {
+                    'err': true
+                };
+                callback(null, item);
+            } else {
+                var option = {
+                    method: "GET",
+                    url: url,
+                    headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
+                    encoding: null
+                };
+                request(option, function (err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        var strContents = new Buffer(body);
+                        body = iconv.decode(strContents, 'EUC-KR').toString();
+                        $ = cheerio.load(body);
 
-                    var img = $('#img_areas > a > img').attr('src');
-                    var itemName = $('p.goods_title').text().trim();
-                    var itemPrice = $('.big_price').text().trim();
-                    var item = {
-                        'err': false,
-                        'picUrl': img,
-                        'pName': itemName,
-                        'crawlingUrl': url,
-                        'pLowest': itemPrice
-                    };
-                    callback(null, item);
-                }
-            });
+                        var img = $('#img_areas > a > img').attr('src');
+                        var itemName = $('p.goods_title').text().trim();
+                        var itemPrice = $('.big_price').text().trim();
+                        var item = {
+                            'err': false,
+                            'picUrl': img,
+                            'pName': itemName,
+                            'crawlingUrl': url,
+                            'pLowest': itemPrice
+                        };
+                        callback(null, item);
+                    }
+                });
 
-          }
+            }
         }
     ];
     async.waterfall(task, function (err, result) {
@@ -410,12 +398,14 @@ function cronCrawling(url, callback) {
             var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
             link_pcode = b[0];
             //console.log('link_pcode::::::::::::::::::::::::::::::::::', link_pcode);
+            var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
+            pcode = c[0];
         }
 
         switch (cmpnyc) {
             case 'EE128':
                 //console.log('gmarket::::::::::::::');
-                pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
+                pUrl = 'http://item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
                 break;
             case 'TH201':
                 //console.log('11st::::::::::::::');
@@ -431,6 +421,10 @@ function cronCrawling(url, callback) {
                 break;
             case 'TN729':
                 //console.log('위메프::::::::::::::');
+                if(link_pcode.indexOf('_') != -1) {
+                    var we = link_pcode.split('_');
+                    link_pcode = we[1];
+                }
                 pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
                 break;
             case 'ED910':
