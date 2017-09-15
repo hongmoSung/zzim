@@ -6,7 +6,7 @@ var setCookies = require('./setUserCookies');
 console.log('batch start time', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
 var batch = function(){
 
-    cron.schedule('0 */2 * * *', function(){
+    /*cron.schedule('0 *!/2 * * *', function(){
         console.log('~~~~~~~~~~~~~~~ running cron.schedule every hour ~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
         db.selectAllProduct(function(err, result) {
             if(err) {
@@ -15,9 +15,9 @@ var batch = function(){
                 //console.log('#########################성공#########################');
             }
         });
-    });
+    });*/
 
-    cron.schedule('30 */1 * * *', function(){
+    cron.schedule('*/2 * * * *', function(){
         setCookies.setUserCookies();
     });
 
