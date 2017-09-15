@@ -24,7 +24,8 @@ function sendNotificationAndroid(pName, pNo, token){
         "click_action": "http://localhost:8880"
       },
       "data":{
-        "pNo":pNo
+        "pNo":pNo,
+        "msg":pName + "의 가격이 희망가격 아래로 떨어졌습니다."
       },
       "registration_ids": token
     }
