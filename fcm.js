@@ -1,10 +1,21 @@
 var request = require('request');
 
 
-function sendNotification(pName, token){
-    var headers = {
-        'Authorization': 'key=AAAA3MZfvK4:APA91bFWnEWq94oT5PslAx2JzJisiLTfzKVjiD4gHPjHVClNmrPj8hH7YGxBKNZ3gkLROwRoXTyVcMUyA0VVfccC8QYZdeAJx8PVkVBVmKNIcNuFOqcrj9boSKzpfZFOOqm68RfDj-56',
+function sendNotificationWeb(pName, pNo, token){
+    var body = {
+      "notification": {
+        "title": "zzim알림",
+        "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
+        "icon": "firebase-logo.png",
+        "click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo 
+      },
+      "registration_ids": token
     }
+    
+    sendRequest(body);
+}
+
+function sendNotificationAndroid(pName, pNo, token){
     var body = {
       "notification": {
         "title": "zzim알림",
@@ -12,7 +23,22 @@ function sendNotification(pName, token){
         "icon": "firebase-logo.png",
         "click_action": "http://localhost:8880"
       },
+      "data":{
+        "pNo":pNo
+      },
       "registration_ids": token
+    }
+    
+    sendRequest(body);
+}
+
+
+
+
+
+function sendRequest(body) {
+    var headers = {
+        'Authorization': 'key=AAAA3MZfvK4:APA91bFWnEWq94oT5PslAx2JzJisiLTfzKVjiD4gHPjHVClNmrPj8hH7YGxBKNZ3gkLROwRoXTyVcMUyA0VVfccC8QYZdeAJx8PVkVBVmKNIcNuFOqcrj9boSKzpfZFOOqm68RfDj-56',
     }
 
     var options = {
@@ -33,9 +59,7 @@ function sendNotification(pName, token){
       //console.log('statusCode: ', res.statusCode)
       //console.log('body: ', body)
     });
-
 }
-
 
 //sendNotification('테스트', ["evFrmw__jlA:APA91bFpb9Ft3fsoeepy1LcljgaZpk3ESF-W5fowVOKOb-IpWOrvt_bgR76b_lXCLE6SGdKbvwXP2Dbnts93SsM8rHAxN_WHDEAGJDbOX6Ty8rvVFm1h5r4GTZVOG9XW80MwDBldiolR"]);
 module.exports.sendNotification = sendNotification;
