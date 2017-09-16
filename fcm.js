@@ -7,11 +7,11 @@ function sendNotificationWeb(pName, pNo, token){
         "title": "zzim알림",
         "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
         "icon": "firebase-logo.png",
-        "click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo 
+        "click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo
       },
       "registration_ids": token
     }
-    
+
     sendRequest(body);
 }
 
@@ -29,7 +29,7 @@ function sendNotificationAndroid(pName, pNo, token){
       },
       "registration_ids": token
     }
-    
+
     sendRequest(body);
 }
 
@@ -54,7 +54,7 @@ function sendRequest(body) {
         console.error('FCM메세지 보내기 오류::::: ', err);
         throw err;
       } else {
-        
+
       }
       //console.log('headers: ', res.headers)
       //console.log('statusCode: ', res.statusCode)
@@ -63,4 +63,5 @@ function sendRequest(body) {
 }
 
 //sendNotification('테스트', ["evFrmw__jlA:APA91bFpb9Ft3fsoeepy1LcljgaZpk3ESF-W5fowVOKOb-IpWOrvt_bgR76b_lXCLE6SGdKbvwXP2Dbnts93SsM8rHAxN_WHDEAGJDbOX6Ty8rvVFm1h5r4GTZVOG9XW80MwDBldiolR"]);
-module.exports.sendNotification = sendNotification;
+module.exports.sendNotificationWeb = sendNotificationWeb;
+module.exports.sendNotificationAndroid = sendNotificationAndroid;

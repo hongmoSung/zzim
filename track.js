@@ -249,7 +249,7 @@ function track(url, callback) {
 
 
 //재검색
-function reSearch(title, url, func) {
+function reSearch(data, func) {
     var $;
     // var startTime = new Date().getTime();
     var task;
@@ -257,7 +257,7 @@ function reSearch(title, url, func) {
         function (callback) {
             var option = {
                 method: "GET",
-                url: url,
+                url: data.url,
                 headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
                 encoding: null
             };
@@ -266,7 +266,7 @@ function reSearch(title, url, func) {
                 body = iconv.decode(strContents, 'utf-8').toString();
                 $ = cheerio.load(body);
                 var form = {
-                    "q": 'site:danawa.com 가격비교 ' + title
+                    "q": 'site:danawa.com 가격비교 ' + data.title
                 };
                 var formData = qs.stringify(form);
                 var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
@@ -282,7 +282,7 @@ function reSearch(title, url, func) {
                     body = iconv.decode(strContents, 'utf-8').toString();
                     $ = cheerio.load(body);
                     var url = $('cite._Rm').html();
-                    //console.log('url :::::::::::::::::::::::: ', url);
+                    console.log('url :::::::::::::::::::::::: ', url);
                     if (url.indexOf('prod') == -1) {
                         // console.log('구글 검색 결과가ㅣ 없습니다.......................');
                         callback(null, 'err');
@@ -290,10 +290,10 @@ function reSearch(title, url, func) {
                         url = "http://" + url;
                         //console.log('url :::::::::::::::::::::::: ', url);
                         if (url.indexOf('prod') != -1) {
-                            // console.log('내가 원하는 주소.....');
+                            console.log('내가 원하는 주소.....');
                             callback(null, url);
                         } else {
-                            // console.log('재입력조차 유효하지 않는 상품명...');
+                            console.log('내가 원하지 않는 주소.....');
                             callback(null, 'err2');
                         }
                     }
@@ -331,7 +331,10 @@ function reSearch(title, url, func) {
                             'crawlingUrl': url,
                             'pLowest': itemPrice
                         };
+                        console.log(item);
                         callback(null, item);
+                    } else {
+                      callback(err, null);
                     }
                 });
 
@@ -339,16 +342,19 @@ function reSearch(title, url, func) {
         }
     ];
     async.waterfall(task, function (err, result) {
-        if (err)
-            console.log('err');
-        else {
-            func(result);
+        if (err) {
+          func(result);
+          console.log('err');
+        } else {
+          console.log('not err');
+          func(result);
         }
     });
 }
 
 //cron crawling
 function cronCrawling(url, callback) {
+    // console.log('cronCrawling url :::::::', url);
     var option = {
         method: "GET",
         url: url,
@@ -356,7 +362,7 @@ function cronCrawling(url, callback) {
         encoding: null
     };
     request(option, function (err, res, body) {
-        if (err) {
+        if (err || typeof body != 'object') {
             console.log('cronCrawling err....');
             callback(err, null);
         }
@@ -442,7 +448,10 @@ function cronCrawling(url, callback) {
             'pUrl': pUrl,
             'pLowest': pLowest,
             'picUrl': picUrl,
-            'crawlingUrl': crawlingUrl
+            'crawlingUrl': crawlingUrl,
+            'cmpnyc': cmpnyc,
+            'link_pcode': link_pcode,
+            'pcode': pcode
         }
         callback(null, product);
     });

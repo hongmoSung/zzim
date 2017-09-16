@@ -37,4 +37,35 @@ function getSiteUrl(data, callback) {
         });
 }
 
+function updateProductFromSelenium(data, callback) {
+    console.log("data::::",data);
+    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    driver.get(data.pUrl)
+    .then(function () {
+      driver.sleep(3500);
+      return driver.getCurrentUrl();
+    })
+    .then(function (currentUrl) {
+      var cmpnyUrl = currentUrl.substr(0, currentUrl.indexOf('?'));
+      var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
+      var data2 = {
+        'cmpnyc': data.cmpnyc,
+        'cmpnyUrl': cmpnyUrl
+      }
+      data.pUrl = pUrl;
+      db.addSite(data2, function (err, result) {
+        if (result) {
+          console.log('insert addSite 성공.....');
+          db.updateProduct(data, function(err, result) {
+            if(err) {console.log('updateProduct err'); callback('updateProduct err')}
+            if(result) {console.log('updateProductFromSelenium 성공');}
+          });
+        }else{
+          callback("err");
+        }
+      });
+    });
+}
+
 module.exports.getSiteUrl = getSiteUrl;
+module.exports.updateProductFromSelenium = updateProductFromSelenium;
