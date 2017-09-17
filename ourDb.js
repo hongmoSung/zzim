@@ -164,11 +164,15 @@ function selectSite(cmpnyc, callback) {
     }
     var exec = conn.query('select cmpnyc, cmpnyUrl from tbl_site where cmpnyc = ?', [cmpnyc], function(err, rows, fields) {
       conn.release();
-      if(rows.length > 0) {
-        callback(null, rows);
-      } else {
-        var err = {};
+      if(err) {
         callback(err, null);
+      } else {
+        if(rows.length > 0) {
+          callback(null, rows);
+        } else {
+          var err = {};
+          callback(err, null);
+        }
       }
     });
   });
@@ -239,10 +243,14 @@ function selectToken(data, callback) {
     }
     var exec = conn.query(sql, function(err, rows, fields) {
         conn.release();
-        if(rows.length > 0){
-          callback(null, rows);
-        } else {
+        if(err) {
           callback(err, null);
+        } else {
+          if(rows.length > 0){
+            callback(null, rows);
+          } else {
+            callback(err, null);
+          }
         }
     });
   });

@@ -112,7 +112,7 @@ function subScheduling(product, callback) {
               var data = rows;
               db.selectToken(rows, function(err, rows) {
                 if(err) {
-                  // msg = 'selectToken err';
+                  console.log('selectToken err');
                   callback(err);
                 } else {
                   var tokenArrWeb = [];
