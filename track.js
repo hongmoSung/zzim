@@ -358,9 +358,8 @@ function startTracking(data, func) {
         var pNo = rows[0].pNo;
         db.checkTracking(email, pNo, function(err, rows) {
           if(err) {
-            // callback(err);
-          } else {
             func(result);
+          } else {
             if(rows) {
               result.result = false;
               result.msg = "이미 트렉킹중인 제품"

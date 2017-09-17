@@ -9,6 +9,8 @@ code:`window.location.protocol + "//" + window.location.host + "/" + window.loca
 });
 */
 var email;
+var url = 'http://localhost';
+
 // 확장 실행시 바로 실행되는 함수
 chrome.tabs.getSelected(null, function (tab) {
     console.log('tab:::::::::::::::', tab.url);
@@ -23,7 +25,7 @@ chrome.tabs.getSelected(null, function (tab) {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    url: "https://zzim.zz.am/user/loginCheck",
+                    url: url = + ':9080/user/loginCheck'
                 }).done(function(result){
                     console.log("aaaa");
                     console.log(result);
@@ -52,7 +54,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json; charset=UTF-8",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "https://localhost:3003/track",
+            url: url + ":3003/track",
             data: JSON.stringify({
                 url: tab.url
             }),
@@ -220,7 +222,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "http://localhost:3003/reSearch",
+            url: url + ":3003/reSearch",
             data: JSON.stringify({
                 reSearchTitle: reSearchTitle,
                 url: tab.url
@@ -302,7 +304,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "https://localhost:3003/addDB",
+        url: url + ":3003/addDB",
         data: JSON.stringify(p),
         datatype: "text"
     })
@@ -336,7 +338,7 @@ $("button[name='loginBtn']").click(function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "https://localhost:3003/login",
+        url: url + ":3003/login",
         data: JSON.stringify({
             email: email,
             password: password
