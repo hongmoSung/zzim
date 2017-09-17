@@ -3,22 +3,22 @@ var tr = require('./track.js');
 var fire = require('./fcm.js');
 // var pool = require('./db.js').pool;
 
-// var pool = mysql.createPool({
-//     connectionLimit: 500,
-//     host: 'localhost', port: 3306,
-//     user: 'hobby',
-//     password: 'password',
-//     database: 'hobby',
-//     debug: false
-// });
 var pool = mysql.createPool({
     connectionLimit: 500,
-    host: '192.168.0.11', port: 3306,
-    user: 'server',
+    host: 'localhost', port: 3306,
+    user: 'hobby',
     password: 'password',
-    database: 'server',
+    database: 'hobby',
     debug: false
 });
+// var pool = mysql.createPool({
+//     connectionLimit: 500,
+//     host: '192.168.0.11', port: 3306,
+//     user: 'server',
+//     password: 'password',
+//     database: 'server',
+//     debug: false
+// });
 
 
 //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
@@ -129,6 +129,8 @@ function checkTracking(email, pNo, callback) {
           rows.forEach(function (row, i) {
             callback(null, rows);
           });
+        } else {
+          callback(err, null);
         }
       }
     });
@@ -206,18 +208,22 @@ function selectUser(email, callback) {
     }
     var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "aes") as password from tbl_user where email = ?', [email], function(err, rows, fields) {
       conn.release();
-      if(rows.length > 0) {
-        console.log('email [%s] 과 일치하는 사용자 찾음.', email);
-        rows.forEach(function (row, i) {
-          result = {
-                      "email": row.email,
-                      "password": row.password,
-                      "loginChk": "success"
-                    };
-          callback(null, result);
-      	});
+      if(err) {
+        callback(null, result);
       } else {
-        callback(err, null);
+        if(rows.length > 0) {
+          console.log('email [%s] 과 일치하는 사용자 찾음.', email);
+          rows.forEach(function (row, i) {
+            result = {
+              "email": row.email,
+              "password": row.password,
+              "loginChk": "success"
+            };
+            callback(null, result);
+          });
+        } else {
+          callback(err, null);
+        }
       }
     });
   });
@@ -267,12 +273,16 @@ function selectProduct(pName, callback) {
     var exec = conn.query('select ?? from ?? where pName = ?',
                           [columns, tableName, pName], function(err, rows, fields) {
       conn.release();
-      if(rows.length > 0) {
-        rows.forEach(function (row, i) {
-          callback(null, rows);
-      	});
-      } else {
+      if(err) {
         callback(err, null);
+      } else {
+        if(rows.length > 0) {
+          rows.forEach(function (row, i) {
+            callback(null, rows);
+          });
+        } else {
+          callback(err, null);
+        }
       }
     });
   });
@@ -288,10 +298,14 @@ function selectAllProduct(callback) {
     var tableName = 'tbl_product';
     var exec = conn.query('select ?? from ??', [columns, tableName], function(err, rows, fields) {
       conn.release();
-      if(rows.length > 0) {
-        callback(null, rows);
-      } else {
+      if(err) {
         callback(err, null);
+      } else {
+        if(rows.length > 0) {
+          callback(null, rows);
+        } else {
+          callback(err, null);
+        }
       }
     });
   });

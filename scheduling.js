@@ -33,13 +33,7 @@ function scheduling() {
                         var cmpnyc = product.cmpnyc;
                         if(cmpnyc == 'EE128' || cmpnyc == 'TH201' || cmpnyc == 'EE715' || cmpnyc == 'TN920' || cmpnyc == 'TN729' || cmpnyc == 'ED910') {
                           console.log('대기업 가격변동,,,, :::::::  ', product.pNo);
-                          subScheduling(product, function(err, result) {
-                            if(err) {
-
-                            } else {
-                              // return msg = '스케쥴링 성공';
-                            }
-                          });
+                          subScheduling(product);
                         } else {
                           db.selectSite(cmpnyc, function(err, rows) {
                             console.log('가격변동 중 selenium 대상이 아닌것,,,, :::::::  ',product.pNo);
@@ -52,15 +46,7 @@ function scheduling() {
                                 rows.forEach(function (row, i) {
                                   product.pUrl = row.cmpnyUrl + '?nProdCode=' + product.pcode;
                                 });
-                                subScheduling(product, function(err, result) {
-                                  if(err) {
-
-                                  } else {
-                                    if(result) {
-                                      // msg = '스케쥴링 성공';
-                                    }
-                                  }
-                                });
+                                subScheduling(product);
                               } else {
                                 console.log('selenium 대상,,,, :::::::  ',product.pNo);
                                 selenium.updateProductFromSelenium(product, function(err, result) {
@@ -96,51 +82,51 @@ function scheduling() {
     });
 }
 
-function subScheduling(product, callback) {
+function subScheduling(product) {
   db.updateProduct(product, function(err, result) {
     if(err) {
-      // msg = 'updateProduct err';
-      callback(err);
+      console.log('updateProduct err');
     } else {
+      // callback(err);
       if(result) {
         db.selectTracking(product.pNo, function(err, rows, fields) {
           if(err) {
-            // msg = 'selectTracking err';
-            callback(err);
+            console.log('selectTracking err');
+            // callback(err);
           } else {
             if(rows) {
               var data = rows;
               db.selectToken(rows, function(err, rows) {
                 if(err) {
                   console.log('selectToken err');
-                  callback(err);
+                  // callback(err);
                 } else {
                   var tokenArrWeb = [];
                   var tokenArrAndroid = [];
                   if(rows) {
-                    // console.log('가격변동...', rows);
-                    callback(null, rows);
-                    // rows.forEach(function (row, i) {
-                    //   switch (row.device) {
-                    //     case 1: tokenArrWeb.push(row.token);
-                    //     break;
-                    //     case 2: tokenArrAndroid.push(row.token);
-                    //     break;
-                    //     default:
-                    //   }
-                    // });
+                    console.log('가격변동...', rows);
+                    // callback(null, rows);
+                    rows.forEach(function (row, i) {
+                      switch (row.device) {
+                        case 1: tokenArrWeb.push(row.token);
+                        break;
+                        case 2: tokenArrAndroid.push(row.token);
+                        break;
+                        default:
+                      }
+                    });
                   } else {
                     // msg = 'selectToken 없음';
                     console.log('selectToken 없음');
-                    callback(err);
+                    // callback(err);
                   }
-                  // fire.sendNotificationWeb(product.pName, product.pNo, tokenArrWeb);
-                  // fire.sendNotificationAndroid(product.pName, product.pNo, tokenArr);
+                  fire.sendNotificationWeb(product.pName, product.pNo, tokenArrWeb);
+                  fire.sendNotificationAndroid(product.pName, product.pNo, tokenArr);
                 }
               });
             } else {
               console.log('가격변동 상품중에 알림가격을 만족하는 상품이 없습니다. 상품코드 ::: ', product.pNo);
-              callback(null);
+              // callback(null);
             }
           }
         });
