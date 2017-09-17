@@ -1,6 +1,4 @@
 const webdriver = require('selenium-webdriver');
-//const chrome = require('selenium-webdriver/chrome');
-//var chromedriver = require('chromedriver');
 const By = webdriver.By;
 const cheerio = require('cheerio');
 var request = require('request');

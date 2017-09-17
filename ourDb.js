@@ -1,14 +1,21 @@
 var mysql = require('mysql');
 var tr = require('./track.js');
 var fire = require('./fcm.js');
-// var pool = require('./db.js').pool;
 
-var pool = mysql.createPool({
+/*var pool = mysql.createPool({
     connectionLimit: 500,
     host: 'localhost', port: 3306,
     user: 'hobby',
     password: 'password',
     database: 'hobby',
+    debug: false
+});*/
+var pool = mysql.createPool({
+    connectionLimit: 500,
+    host: 'localhost', port: 3306,
+    user: 'sb',
+    password: 'sb',
+    database: 'web',
     debug: false
 });
 
@@ -420,7 +427,7 @@ function selectAllProduct(callback) {
       if(rows.length > 0) {
         callback(null, rows);
       } else {
-        console.log('selectAllProduct err');
+        console.log('selectAllProduct : rows.length <= 0');
         callback(err, null);
       }
     });
@@ -508,4 +515,4 @@ module.exports.addHistory = addHistory;
 module.exports.updateProduct = updateProduct;
 module.exports.selectTracking = selectTracking;
 module.exports.selectToken = selectToken;
-// module.exports.pool = pool;
+module.exports.pool = pool;

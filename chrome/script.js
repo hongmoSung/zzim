@@ -23,7 +23,7 @@ chrome.tabs.getSelected(null, function (tab) {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    url: "http://localhost:9080/user/loginCheck",
+                    url: "https://zzim.zz.am/user/loginCheck",
                 }).done(function(result){
                     console.log("aaaa");
                     console.log(result);
@@ -52,7 +52,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json; charset=UTF-8",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "http://localhost:3003/track",
+            url: "https://localhost:3003/track",
             data: JSON.stringify({
                 url: tab.url
             }),
@@ -275,7 +275,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "http://localhost:3003/addDB",
+        url: "https://localhost:3003/addDB",
         data: JSON.stringify(p),
         datatype: "text"
     })
@@ -309,7 +309,7 @@ $("button[name='loginBtn']").click(function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "http://localhost:3003/login",
+        url: "https://localhost:3003/login",
         data: JSON.stringify({
             email: email,
             password: password

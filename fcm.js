@@ -7,7 +7,8 @@ function sendNotificationWeb(pName, pNo, token){
         "title": "zzim알림",
         "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
         "icon": "firebase-logo.png",
-        "click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo
+        /*"click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo*/
+        "click_action": "https://zzim.zz.am/trackingBoard/trackingList#" + pNo
       },
       "registration_ids": token
     }
@@ -21,7 +22,8 @@ function sendNotificationAndroid(pName, pNo, token){
         "title": "zzim알림",
         "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
         "icon": "firebase-logo.png",
-        "click_action": "http://localhost:8880"
+        /*"click_action": "http://localhost:8880"*/
+        "click_action": "https://zzim.zz.am"
       },
       "data":{
         "pNo":pNo,
