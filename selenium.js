@@ -6,7 +6,6 @@ require('date-utils');
 var db = require('./ourDb.js');
 
 function getSiteUrl(data, callback) {
-    console.log("data::::",data);
     var driver = new webdriver.Builder().forBrowser('chrome').build();
     driver.get(data.url);
     driver.findElement(By.css('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)')).click()
@@ -52,14 +51,25 @@ function updateProductFromSelenium(data, callback) {
       }
       data.pUrl = pUrl;
       db.addSite(data2, function (err, result) {
-        if (result) {
-          console.log('insert addSite 성공.....');
-          db.updateProduct(data, function(err, result) {
-            if(err) {console.log('updateProduct err'); callback('updateProduct err')}
-            if(result) {console.log('updateProductFromSelenium 성공');}
-          });
-        }else{
-          callback("err");
+        if(err) {
+          callback(err);
+        } else {
+          if (result) {
+            console.log('insert addSite 성공.....');
+            db.updateProduct(data, function(err, result) {
+              if(err) {
+                console.log('updateProduct err');
+                callback(err)
+              } else {
+                if(result) {
+                  console.log('updateProductFromSelenium 성공');
+                  callback(null, result);
+                }
+              }
+            });
+          }else{
+            // callback("err");
+          }
         }
       });
     });

@@ -19,17 +19,17 @@ var options = {
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };
 */
-var options = {
-    key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
-    cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
-    ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
-};
-
-var https = require('https');
-https.createServer(options,app).listen(3003,function () {
-    console.log("3003 running");
-    cron.batch();
-})
+// var options = {
+//     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
+//     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
+//     ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
+// };
+//
+// var https = require('https');
+// https.createServer(options,app).listen(3003,function () {
+//     console.log("3003 running");
+//     cron.batch();
+// })
 
 
 app.use(bodyParser.json()); // for parsing application/json
@@ -74,7 +74,7 @@ app.post("/addDB", function(req, res) {
     'crawlingUrl': req.body.crawlingUrl,
     'email': req.body.email
   }
-  db.startTracking(data, function(err, result) {
+  tr.startTracking(data, function(result) {
       res.send(result);
   });
 });
@@ -99,9 +99,9 @@ app.post("/login", function(req, res) {
   });
 });
 
-/*
 app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
     cron.batch();
 });
+/*
 */

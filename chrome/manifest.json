@@ -20,8 +20,8 @@
   "content_scripts": [
     {
       "matches": ["http://www.google.com/*"],
-      "css": ["waitMe.css", "sweetalert2.min.css", "bootstrap.min.css", "rangeslider.css"],
-      "js": ["script.js", "waitMe.js", "sweetalert2.min.js", "bootstrap.min.js", "rangeslider.min.js"],
+      "css": ["waitMe.css", "bootstrap.min.css", "rangeslider.css"],
+      "js": ["script.js", "waitMe.js", "bootstrap.min.js", "rangeslider.min.js"],
       "svg": ["img.svg"]
     }
   ]

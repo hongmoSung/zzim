@@ -58,7 +58,7 @@ chrome.tabs.getSelected(null, function (tab) {
             }),
             datatype: 'text'
         }).done(function (result) {
-            if (result.err) {
+            if (result.err || result.picUrl == '') {
                 //alert('조회 실패!');
                 $('#reSearchDiv').css('display', 'block');
             } else {
@@ -66,27 +66,27 @@ chrome.tabs.getSelected(null, function (tab) {
                 var p = result;
                 console.log("info ::: ", p);
 
-                // 성공시에 url 폼 숨기기
-                $("#urlDiv").css("display", "none");
+                $("#reSearchDiv").css("display", "none");
                 html = "";
                 html += '<div class="image-tile outer-title text-center">';
-                html += "   <img class='product-thumb' src='" + p.picUrl + "' height='140px;'/>";
+                html += "   <img src='" + p.picUrl + "' height='140px;'/>";
                 html += '   <div class="title">';
                 html += '     <h5 class="title">' + p.pName + '</h5>';
-                html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
+                if(p.pLowest == '') {
+                  html += '     <h3 class="title">판매가 종료된 상품입니다.</h6>';
+                } else {
+                  html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
+                  html += '     <input id="range" type="range" data-rangeslider >';
+                }
                 html += '   </div>';
-                html += '   <form class="text-left" onsubmit="return false;">';
-                //html += '   <div class = "rangeslider rangeslider--horizontal">';
-                html += '     <input id="range" type="range" data-rangeslider >';
-                // html += '   </div>';
+                html += '   <form class="text-left">';
                 html += '     <h5 class="title text-center" id="priceInfo" class="mb0"></h5>';
+                if(p.pLowest != '') {
                 html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
+                }
                 html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
                 html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
-                // html += '     <input type="submit" class="hollow" id="trackBtn" value="Start tracking!!" />';
                 html += '   </form>';
-                //html += '     <button type="button" class="btn btn-lg btn-filled" id="goToLogin">아이디 재설정</button>';
-                html += '     <a id = "goToLogin" href="#">아이디 재설정</a>';
                 html += '</div>';
                 $("#productInfo").html(html);
                 $("#productInfo").css("display", "block");
@@ -96,6 +96,33 @@ chrome.tabs.getSelected(null, function (tab) {
                 $('input[type="range"]').attr('value', rangeVar);
                 $('input[type="range"]').attr('step', rangeVar / 100);
                 setting(rangeVar);
+
+                // 성공시에 url 폼 숨기기
+                // $("#urlDiv").css("display", "none");
+                // html = "";
+                // html += '<div class="image-tile outer-title text-center">';
+                // html += "   <img class='product-thumb' src='" + p.picUrl + "' height='140px;'/>";
+                // html += '   <div class="title">';
+                // html += '     <h5 class="title">' + p.pName + '</h5>';
+                // html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
+                // html += '   </div>';
+                // html += '   <form class="text-left" onsubmit="return false;">';
+                // html += '     <input id="range" type="range" data-rangeslider >';
+                // html += '     <h5 class="title text-center" id="priceInfo" class="mb0"></h5>';
+                // html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
+                // html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
+                // html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
+                // html += '   </form>';
+                // html += '     <a id = "goToLogin" href="#">아이디 재설정</a>';
+                // html += '</div>';
+                // $("#productInfo").html(html);
+                // $("#productInfo").css("display", "block");
+                // var rangeVar = p.pLowest.trim().replace(/,/gi, '');
+                // $('input[type="range"]').attr('max', rangeVar);
+                // $('input[type="range"]').attr('min', 0);
+                // $('input[type="range"]').attr('value', rangeVar);
+                // $('input[type="range"]').attr('step', rangeVar / 100);
+                // setting(rangeVar);
             }
         });
     }
