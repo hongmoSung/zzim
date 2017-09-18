@@ -3,7 +3,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var cron = require('./cron');
 var db = require('./ourDb.js');
-var tr = require('./service/trackService.js');
+var track = require('./service/trackService.js');
 var CryptoJS = require("crypto-js");
 var cart = require('./service/cartService');
 var fs = require("fs");
@@ -41,7 +41,7 @@ app.use(function (req, res, next) {
 
 app.post("/track", function (req, res) {
     var url = req.body.url;
-    tr.chase(url, function (result) {
+    track.search(url, function (result) {
         res.send(result);
     });
 });
@@ -73,7 +73,7 @@ app.post("/addDB", function (req, res) {
         'crawlingUrl': req.body.crawlingUrl,
         'email': req.body.email
     }
-    tr.startTracking(data, function (result) {
+    track.startTracking(data, function (result) {
         res.send(result);
     });
 });
@@ -83,7 +83,7 @@ app.post("/reSearch", function (req, res) {
         'title': req.body.reSearchTitle,
         'url': req.body.url
     }
-    tr.reSearch(data, function (result) {
+    track.reSearch(data, function (result) {
         res.send(result);
     });
 });

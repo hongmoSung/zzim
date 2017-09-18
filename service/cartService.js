@@ -647,12 +647,12 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
             driver.quit();
 
         }, function (loginData, webCookies, callback) {
-            pool.getConnection(function (err, conn) {
+            db.pool.getConnection(function (err, conn) {
                 if (err) {
                     return;
                 }
                 var sql = "insert into tbl_loginData (email, website, websiteId, websitePw) values (?,?,?,HEX(AES_ENCRYPT(?,'aes')))";
-                con.query(sql, [loginData.email, loginData.website, loginData.websiteId, loginData.websitePw], function (err, result) {
+                conn.query(sql, [loginData.email, loginData.website, loginData.websiteId, loginData.websitePw], function (err, result) {
                     conn.release();
                     if (err) {
                         console.log("insert logindata err");
@@ -675,7 +675,7 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                         return;
                     }
                     var sql = "update tbl_logindata set cookies = ? where email = ? and website = ?";
-                    con.query(sql, [webCookies, loginData.email, loginData.website], function (err, rows, fields) {
+                    conn.query(sql, [webCookies, loginData.email, loginData.website], function (err, rows, fields) {
                         conn.release();
                         if (err) {
                             console.log("update cookies err");

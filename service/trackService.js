@@ -340,7 +340,6 @@ function crawlingForScheduling(url, callback) {
 
 //startTrack
 function startTracking(data, func) {
-
     var pName = data.pName;
     var notifyPrice = data.notifyPrice;
     var crawlingUrl = data.crawlingUrl;
@@ -353,6 +352,7 @@ function startTracking(data, func) {
 
     db.selectProduct(pName, function (err, rows) {
         if (err) {
+            console.log('errrrrrrrr');
             func(result);
         } else {
             // 조회된 상품이 있는경우
