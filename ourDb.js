@@ -1,24 +1,31 @@
 var mysql = require('mysql');
-var tr = require('./track.js');
+var tr = require('./service/trackService.js');
 var fire = require('./fcm.js');
-// var pool = require('./db.js').pool;
 
-var pool = mysql.createPool({
+/*var pool = mysql.createPool({
     connectionLimit: 500,
     host: 'localhost', port: 3306,
     user: 'hobby',
     password: 'password',
     database: 'hobby',
     debug: false
-});
-// var pool = mysql.createPool({
-//     connectionLimit: 500,
-//     host: '192.168.0.11', port: 3306,
-//     user: 'server',
-//     password: 'password',
-//     database: 'server',
-//     debug: false
-// });
+});*/
+/*var pool = mysql.createPool({
+    connectionLimit: 500,
+    host: 'localhost', port: 3306,
+    user: 'sb',
+    password: 'sb',
+    database: 'web',
+    debug: false
+});*/
+ var pool = mysql.createPool({
+     connectionLimit: 500,
+     host: '192.168.0.11', port: 3306,
+     user: 'server',
+     password: 'password',
+     database: 'server',
+     debug: false
+ });
 
 
 //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
@@ -28,10 +35,9 @@ var pool = mysql.createPool({
 function addSite(data, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
-    var exec = conn.query('insert into tbl_site set ?', data, function(err, result) {
+    conn.query('insert into tbl_site set ?', data, function(err, result) {
       conn.release();
       if(err) {
         console.error(err);
@@ -47,7 +53,6 @@ function addSite(data, callback) {
 function addProduct(data, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('insert into tbl_product set ?', data, function(err, result) {
@@ -67,7 +72,6 @@ function addProduct(data, callback) {
 function addHistory(product, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var data = {
@@ -91,7 +95,6 @@ function addHistory(product, callback) {
 function addTracking(email, pNo, notifyPrice, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var data = {
@@ -116,7 +119,6 @@ function addTracking(email, pNo, notifyPrice, callback) {
 function checkTracking(email, pNo, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('select * from  tbl_tracking where email =  ? and pNo = ?', [email, pNo], function(err, rows) {
@@ -141,7 +143,6 @@ function checkTracking(email, pNo, callback) {
 function selectTracking(pNo, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('select pName, pLowest, email, tr.pNo, notifyPrice from tbl_product pd join tbl_tracking tr on pd.pNo = tr.pNo where tr.pNo = ? and tr.notifyPrice >= pd.pLowest', [pNo], function(err, rows, fields) {
@@ -161,7 +162,6 @@ function selectTracking(pNo, callback) {
 function selectSite(cmpnyc, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('select cmpnyc, cmpnyUrl from tbl_site where cmpnyc = ?', [cmpnyc], function(err, rows, fields) {
@@ -184,7 +184,6 @@ function selectSite(cmpnyc, callback) {
 function updateProduct(product, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('update tbl_product set pLowest = ?, pUrl = ? where pNo = ?;', [product.pLowest, product.pUrl, product.pNo], function(err, result) {
@@ -203,7 +202,6 @@ function updateProduct(product, callback) {
 function selectUser(email, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var exec = conn.query('select email, AES_DECRYPT(UNHEX(password), "aes") as password from tbl_user where email = ?', [email], function(err, rows, fields) {
@@ -232,7 +230,6 @@ function selectUser(email, callback) {
 function selectToken(data, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var columns = ['pNo'];
@@ -265,7 +262,6 @@ function selectToken(data, callback) {
 function selectProduct(pName, callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var columns = ['pNo'];
@@ -291,7 +287,6 @@ function selectProduct(pName, callback) {
 function selectAllProduct(callback) {
   pool.getConnection(function(err, conn) {
     if(err) {
-      conn.release();
       return;
     }
     var columns = ['pNo', 'pLowest', 'crawlingUrl', 'pName', 'pUrl'];
@@ -323,4 +318,4 @@ module.exports.addHistory = addHistory;
 module.exports.updateProduct = updateProduct;
 module.exports.selectTracking = selectTracking;
 module.exports.selectToken = selectToken;
-// module.exports.pool = pool;
+module.exports.pool = pool;

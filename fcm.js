@@ -1,42 +1,39 @@
 var request = require('request');
 
 
-function sendNotificationWeb(pName, pNo, token){
+function sendNotificationWeb(pName, pNo, token) {
     var body = {
-      "notification": {
-        "title": "zzim알림",
-        "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
-        "icon": "firebase-logo.png",
-        /*"click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo*/
-        "click_action": "https://zzim.zz.am/trackingBoard/trackingList#" + pNo
-      },
-      "registration_ids": token
+        "notification": {
+            "title": "zzim알림",
+            "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
+            "icon": "firebase-logo.png",
+            /*"click_action": "http://localhost:8880/trackingBoard/trackingList#" + pNo*/
+            "click_action": "https://zzim.zz.am/trackingBoard/trackingList#" + pNo
+        },
+        "registration_ids": token
     }
 
     sendRequest(body);
 }
 
-function sendNotificationAndroid(pName, pNo, token){
+function sendNotificationAndroid(pName, pNo, token) {
     var body = {
-      "notification": {
-        "title": "zzim알림",
-        "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
-        "icon": "firebase-logo.png",
-        /*"click_action": "http://localhost:8880"*/
-        "click_action": "https://zzim.zz.am"
-      },
-      "data":{
-        "pNo":pNo,
-        "msg":pName + "의 가격이 희망가격 아래로 떨어졌습니다."
-      },
-      "registration_ids": token
+        "notification": {
+            "title": "zzim알림",
+            "body": pName + "의 가격이 희망가격 아래로 떨어졌습니다.",
+            "icon": "firebase-logo.png",
+            /*"click_action": "http://localhost:8880"*/
+            "click_action": "https://zzim.zz.am"
+        },
+        "data": {
+            "pNo": pNo,
+            "msg": pName + "의 가격이 희망가격 아래로 떨어졌습니다."
+        },
+        "registration_ids": token
     }
 
     sendRequest(body);
 }
-
-
-
 
 
 function sendRequest(body) {
@@ -52,15 +49,15 @@ function sendRequest(body) {
         body: body
     }
     request(options, function (err, res, body) {
-      if (err) {
-        console.error('FCM메세지 보내기 오류::::: ', err);
-        throw err;
-      } else {
+        if (err) {
+            console.error('FCM메세지 보내기 오류::::: ', err);
+            throw err;
+        } else {
 
-      }
-      //console.log('headers: ', res.headers)
-      //console.log('statusCode: ', res.statusCode)
-      //console.log('body: ', body)
+        }
+        //console.log('headers: ', res.headers)
+        //console.log('statusCode: ', res.statusCode)
+        //console.log('body: ', body)
     });
 }
 
