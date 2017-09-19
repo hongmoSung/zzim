@@ -20,7 +20,6 @@ function cartCrawling(email, func) {
 
             db.pool.getConnection(function (err, conn) {
                 if (err) {
-                    conn.release();
                     return;
                 }
                 conn.query(sql, [email], function (err, rows, fields) {

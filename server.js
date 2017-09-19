@@ -17,6 +17,7 @@ var options = {
     cert: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/zzim-node.zz.am_20170907M39K.crt.pem'),
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };
+*/
 var options = {
     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
@@ -28,7 +29,7 @@ https.createServer(options, app).listen(3003, function () {
     console.log("3003 running");
     cron.batch();
 })
-*/
+
 
 
 app.use(bodyParser.json()); // for parsing application/json
@@ -100,7 +101,9 @@ app.post("/login", function (req, res) {
     });
 });
 
+/*
 app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
     cron.batch();
 });
+*/

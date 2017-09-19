@@ -2,12 +2,21 @@ var mysql = require('mysql');
 var tr = require('./service/trackService.js');
 var fire = require('./fcm.js');
 
-var pool = mysql.createPool({
+/*var pool = mysql.createPool({
     connectionLimit: 500,
     host: 'localhost', port: 3306,
     user: 'hobby',
     password: 'password',
     database: 'hobby',
+    debug: false
+});*/
+
+var pool = mysql.createPool({
+    connectionLimit: 500,
+    host: 'localhost', port: 3306,
+    user: 'sb',
+    password: 'sb',
+    database: 'web',
     debug: false
 });
 

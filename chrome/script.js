@@ -3,15 +3,16 @@ chrome.tabs.getSelected(null, function (tab) {
     console.log('tab:::::::::::::::', tab.url);
     (function () {
         chrome.storage.sync.get(function (data) {
-            email = data.email;
-            console.log("chrome storage email == ", email);
-            if (typeof email == 'undefined' || email == "" || email == null) {
+            gEmail = data.email;
+            console.log("chrome storage email == ", gEmail);
+            if (typeof gEmail == 'undefined' || gEmail == "" || gEmail == null) {
                 $.ajax({
                     headers: {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    url: 'http://localhost:3003/user/loginCheck'
+                    url: 'https://zzim-node.zz.am:3003/user/loginCheck'
+                    // url: 'http://localhost:3003/user/loginCheck'
                 }).done(function (result) {
                     console.log("aaaa");
                     console.log(result);
@@ -40,7 +41,8 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json; charset=UTF-8",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "http://localhost:3003/track",
+            url: "https://zzim-node.zz.am:3003/track",
+            //url: "http://localhost:3003/track",
             data: JSON.stringify({
                 url: tab.url
             }),
@@ -118,7 +120,6 @@ chrome.tabs.getSelected(null, function (tab) {
                 $('input[name="notifyPrice"]').val('');
                 return;
             }
-            ;
 
             if (parseInt(notifyPrice) >= parseInt(pLowest)) {
                 notifyPrice = pLowest;
@@ -167,7 +168,8 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "http://localhost:3003/reSearch",
+            url: "https://zzim-node.zz.am:3003/reSearch",
+            // url: "http://localhost:3003/reSearch",
             data: JSON.stringify({
                 reSearchTitle: reSearchTitle,
                 url: tab.url
@@ -238,7 +240,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
         'pName': pName,
         'notifyPrice': notifyPrice,
         'crawlingUrl': crawlingUrl,
-        'email': email,
+        'email': gEmail,
         'pLowest': pLowest
     }
 
@@ -248,7 +250,8 @@ $('#productInfo').on("click", "#trackBtn", function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "http://localhost:3003/addDB",
+        url: "https://zzim-node.zz.am:3003/addDB",
+        //url: "http://localhost:3003/addDB",
         data: JSON.stringify(p),
         datatype: "text"
     })
@@ -282,7 +285,8 @@ $("button[name='loginBtn']").click(function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "http://localhost:3003/login",
+        url: "https://zzim-node.zz.am:3003/login",
+        // url: "http://localhost:3003/login",
         data: JSON.stringify({
             email: email,
             password: password
@@ -292,6 +296,7 @@ $("button[name='loginBtn']").click(function () {
         .done(function (result) {
             console.log(result);
             if (result.flag == true) {
+                gEmail = email;
                 chrome.storage.sync.set({email: email});
                 $("#urlDiv").css("display", "block");
                 $("#productInfo").css("display", "block");
