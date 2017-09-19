@@ -684,7 +684,7 @@ function updateProductAtScheduling(product) {
 }
 
 function getSiteUrlAtStartTracking(data, callback) {
-    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    var driver = new webdriver.Builder().forBrowser('phantomjs').build();
     driver.then(function () {
         driver.get(data.url);
         driver.findElement(By.css('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)')).click()
@@ -721,7 +721,7 @@ function getSiteUrlAtStartTracking(data, callback) {
 
 function getSiteUrlAtTrackScheduling(data, callback) {
     console.log("data::::", data);
-    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    var driver = new webdriver.Builder().forBrowser('phantomjs').build();
     driver.then(function () {
         driver.get(data.pUrl)
             .then(function () {
