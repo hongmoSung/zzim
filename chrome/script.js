@@ -1,6 +1,6 @@
 var email;
 chrome.tabs.getSelected(null, function (tab) {
-    console.log('tab:::::::::::::::', tab.url);
+    console.log('tabsss:::::::::::::::', tab.url);sss
     (function () {
         chrome.storage.sync.get(function (data) {
             gEmail = data.email;
