@@ -2,31 +2,14 @@ var mysql = require('mysql');
 var tr = require('./service/trackService.js');
 var fire = require('./fcm.js');
 
-/*var pool = mysql.createPool({
+var pool = mysql.createPool({
     connectionLimit: 500,
     host: 'localhost', port: 3306,
     user: 'hobby',
     password: 'password',
     database: 'hobby',
     debug: false
-});*/
-/*var pool = mysql.createPool({
-    connectionLimit: 500,
-    host: 'localhost', port: 3306,
-    user: 'sb',
-    password: 'sb',
-    database: 'web',
-    debug: false
-});*/
-var pool = mysql.createPool({
-    connectionLimit: 500,
-    host: '192.168.0.36', port: 3306,
-    user: 'sb',
-    password: 'sb',
-    database: 'web',
-    debug: false
 });
-
 
 //console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
 //console.log('실행 대상 SQL : ' + exec.sql);
@@ -109,8 +92,12 @@ function addTracking(email, pNo, notifyPrice, callback) {
                 console.dir(err);
                 callback(err, null);
             } else {
+              if(result) {
                 result.data = data;
                 callback(null, result);
+              } else {
+                callback(null, null);
+              }
             }
         });
     });
@@ -133,7 +120,7 @@ function checkTracking(email, pNo, callback) {
                         callback(null, rows);
                     });
                 } else {
-                    callback(err, null);
+                    callback(null, null);
                 }
             }
         });
@@ -154,6 +141,8 @@ function selectTracking(pNo, callback) {
             } else {
                 if (rows.length > 0) {
                     callback(null, rows);
+                } else {
+                  callback(null, null);
                 }
             }
         });
@@ -212,7 +201,6 @@ function selectUser(email, callback) {
                 callback(null, result);
             } else {
                 if (rows.length > 0) {
-                    console.log('email [%s] 과 일치하는 사용자 찾음.', email);
                     rows.forEach(function (row, i) {
                         result = {
                             "email": row.email,
@@ -222,7 +210,7 @@ function selectUser(email, callback) {
                         callback(null, result);
                     });
                 } else {
-                    callback(err, null);
+                    callback(null, null);
                 }
             }
         });
@@ -255,7 +243,7 @@ function selectToken(data, callback) {
                 if (rows.length > 0) {
                     callback(null, rows);
                 } else {
-                    callback(err, null);
+                    callback(null, null);
                 }
             }
         });
@@ -266,7 +254,6 @@ function selectToken(data, callback) {
 function selectProduct(pName, callback) {
     pool.getConnection(function (err, conn) {
         if (err) {
-            console.log("aaa");
             console.log(err);
             return;
         }
@@ -306,7 +293,7 @@ function selectAllProduct(callback) {
                 if (rows.length > 0) {
                     callback(null, rows);
                 } else {
-                    callback(err, null);
+                    callback(null, null);
                 }
             }
         });

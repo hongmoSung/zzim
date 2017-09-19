@@ -11,7 +11,7 @@ chrome.tabs.getSelected(null, function (tab) {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    url: 'https:zzim-node.zz.am:3003/user/loginCheck'
+                    url: 'http://localhost:3003/user/loginCheck'
                 }).done(function (result) {
                     console.log("aaaa");
                     console.log(result);
@@ -34,14 +34,13 @@ chrome.tabs.getSelected(null, function (tab) {
     })();
 
     function startTrack() {
-        console.log("starttrack");
         $.ajax({
             type: 'post',
             headers: {
                 "Content-Type": "application/json; charset=UTF-8",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "https:zzim-node.zz.am:3003/track",
+            url: "http://localhost:3003/track",
             data: JSON.stringify({
                 url: tab.url
             }),
@@ -62,7 +61,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 if (p.pLowest == '') {
                     html += '     <h3 class="title">판매가 종료된 상품입니다.</h6>';
                 } else {
-                    html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
+                    html += '     <h6 class="title"> 현재 가격: <span id="pLowest">' + p.pLowest + '</span> 원</h6>';
                     html += '     <input id="range" type="range" data-rangeslider >';
                 }
                 html += '   </div>';
@@ -168,7 +167,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json",
                 "X-HTTP-Method-Override": "POST"
             },
-            url: "https:zzim-node.zz.am:3003/reSearch",
+            url: "http://localhost:3003/reSearch",
             data: JSON.stringify({
                 reSearchTitle: reSearchTitle,
                 url: tab.url
@@ -191,7 +190,7 @@ chrome.tabs.getSelected(null, function (tab) {
                     if (p.pLowest == '') {
                         html += '     <h3 class="title">판매가 종료된 상품입니다.</h6>';
                     } else {
-                        html += '     <h6 class="title"> 현재 가격: ' + p.pLowest + ' 원</h6>';
+                        html += '     <h6 class="title"> 현재 가격: <span id="pLowest">' + p.pLowest + '</span> 원</h6>';
                         html += '     <input id="range" type="range" data-rangeslider >';
                     }
                     html += '   </div>';
@@ -222,6 +221,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
     var pName = $('h5[class="title"]').text();
     var notifyPrice = $("#notifyPrice").val();
     var crawlingUrl = $("#crawlingUrl").val();
+    var pLowest = $('span#pLowest').text().trim().replace(/,/gi, '');
 
     if (notifyPrice == "") {
         alert("알림가격을 입력해주세요");
@@ -238,7 +238,8 @@ $('#productInfo').on("click", "#trackBtn", function () {
         'pName': pName,
         'notifyPrice': notifyPrice,
         'crawlingUrl': crawlingUrl,
-        'email': email
+        'email': email,
+        'pLowest': pLowest
     }
 
     $.ajax({
@@ -247,7 +248,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "https:zzim-node.zz.am:3003/addDB",
+        url: "http://localhost:3003/addDB",
         data: JSON.stringify(p),
         datatype: "text"
     })
@@ -281,7 +282,7 @@ $("button[name='loginBtn']").click(function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        url: "https:zzim-node.zz.am:3003/login",
+        url: "http://localhost:3003/login",
         data: JSON.stringify({
             email: email,
             password: password

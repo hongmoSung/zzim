@@ -4,6 +4,7 @@ const request = require('request');
 var qs = require("querystring");
 var iconv = require('iconv-lite');
 var db = require('../ourDb.js');
+var mail = require('../mail.js');
 var fire = require('../fcm.js');
 require('date-utils');
 const webdriver = require('selenium-webdriver');
@@ -344,41 +345,45 @@ function startTracking(data, func) {
     var notifyPrice = data.notifyPrice;
     var crawlingUrl = data.crawlingUrl;
     var email = data.email;
+    var pLowest = data.pLowest;
 
-    var result = {
+    var msg = {
         'result': false,
         'msg': '트렉킹 실패'
     };
 
     db.selectProduct(pName, function (err, rows) {
         if (err) {
-            console.log('errrrrrrrr');
-            func(result);
+            func(msg);
         } else {
             // 조회된 상품이 있는경우
             if (rows) {
                 var pNo = rows[0].pNo;
                 db.checkTracking(email, pNo, function (err, rows) {
                     if (err) {
-                        func(result);
+                        func(msg);
                     } else {
                         if (rows) {
-                            result.result = false;
-                            result.msg = "이미 트렉킹중인 제품"
-                            func(result);
+                            msg.result = false;
+                            msg.msg = "이미 트렉킹중인 제품"
+                            func(msg);
                         } else {
                             db.addTracking(email, pNo, notifyPrice, function (err, result) {
                                 if (err) {
-                                    func(result);
+                                    msg.result = false;
+                                    msg.msg = "유효하지 않는 email입니다. email을 재설정 해주세요"
+                                    func(msg);
                                 } else {
                                     if (result) {
-                                        result.result = true;
-                                        result.msg = "트렉킹 성공";
+                                        ///
+                                        msg.result = true;
+                                        msg.msg = "트렉킹 성공";
+                                        func(msg);
                                     } else {
-                                        result.result = false;
-                                        result.msg = "트렉킹 실패";
+                                        msg.result = false;
+                                        msg.msg = "트렉킹 실패";
+                                        func(msg);
                                     }
-                                    func(result);
                                 }
                             });
                         }
@@ -387,34 +392,50 @@ function startTracking(data, func) {
             } else {
                 track(crawlingUrl, function (err, result) {
                     if (err) {
-                        func(result);
+                        func(msg);
                     } else {
                         var data = result;
                         db.addProduct(data, function (err, result) {
                             if (err) {
                                 console.log('addProduct err');
-                                func(result);
+                                func(msg);
                             } else {
                                 if (result) {
                                     db.selectProduct(pName, function (err, rows) {
                                         if (err) {
                                             // callback(err);
-                                            func(result);
+                                            func(msg);
                                         } else {
                                             var pNo = rows[0].pNo;
                                             if (rows) {
                                                 db.addTracking(email, pNo, notifyPrice, function (err, result) {
                                                     if (err) {
-                                                        throw err
-                                                    }
-                                                    if (result) {
-                                                        result.result = true;
-                                                        result.msg = "트렉킹 성공";
-                                                        func(result);
+                                                        msg.result = false;
+                                                        msg.msg = "유효하지 않는 email입니다. email을 재설정 해주세요"
+                                                        func(msg);
                                                     } else {
-                                                        result.result = false;
-                                                        result.msg = "트렉킹 성공";
-                                                        func(result);
+                                                      if (result) {
+                                                        //
+                                                        var product = {
+                                                          'pNo': pNo,
+                                                          'pLowest': pLowest
+                                                        }
+                                                        db.addHistory(product, function(err, result) {
+                                                          if(err) {
+                                                            console.log('addHistory err');
+                                                            func(result);
+                                                          } else {
+                                                            if(result) {
+                                                              msg.result = true;
+                                                              msg.msg = "트렉킹 성공";
+                                                              console.log('add history success');
+                                                              func(msg);
+                                                            }
+                                                          }
+                                                        });
+                                                      } else {
+                                                        func(msg);
+                                                      }
                                                     }
                                                 });
                                             }
@@ -653,6 +674,8 @@ function updateProductAtScheduling(product) {
                                         console.log('가격변동...', rows);
                                         // callback(null, rows);
                                         rows.forEach(function (row, i) {
+                                            mail.sendEmail(product, row.email, row.notifyPrice);
+
                                             switch (row.device) {
                                                 case 1:
                                                     tokenArrWeb.push(row.token);
