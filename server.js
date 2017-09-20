@@ -18,17 +18,17 @@ var options = {
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };
 */
-// var options = {
-//     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
-//     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
-//     ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
-// };
-//
-// var https = require('https');
-// https.createServer(options, app).listen(3003, function () {
-//     console.log("3003 running");
-//     cron.batch();
-// })
+var options = {
+    key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
+    cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
+    ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
+};
+
+var https = require('https');
+https.createServer(options, app).listen(3003, function () {
+    console.log("3003 running");
+    cron.batch();
+})
 
 
 
@@ -37,6 +37,7 @@ app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-w
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE, PATCH");
     next();
 });
 
@@ -103,7 +104,7 @@ app.post("/login", function (req, res) {
     });
 });
 
-app.listen(3003, function(req, res) {
+/*app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
     cron.batch();
-});
+});*/

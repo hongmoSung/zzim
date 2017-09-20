@@ -1,6 +1,5 @@
 var mysql = require('mysql');
 var tr = require('./service/trackService.js');
-var fire = require('./fcm.js');
 
 /*var pool = mysql.createPool({
     connectionLimit: 500,
