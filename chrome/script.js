@@ -1,6 +1,6 @@
 var email;
 chrome.tabs.getSelected(null, function (tab) {
-    console.log('tabsss:::::::::::::::', tab.url);sss
+    console.log('tabsss:::::::::::::::', tab.url);
     (function () {
         chrome.storage.sync.get(function (data) {
             gEmail = data.email;
@@ -48,7 +48,7 @@ chrome.tabs.getSelected(null, function (tab) {
             }),
             datatype: 'text'
         }).done(function (result) {
-            if (result.err || result.picUrl == '') {
+            if (!result || result.picUrl == '') {
                 $('#reSearchDiv').css('display', 'block');
             } else {
                 var p = result;
@@ -171,13 +171,12 @@ chrome.tabs.getSelected(null, function (tab) {
             // url: "https://zzim-node.zz.am:3003/reSearch",
             url: "http://localhost:3003/reSearch",
             data: JSON.stringify({
-                reSearchTitle: reSearchTitle,
-                url: tab.url
+                'pName': reSearchTitle
             }),
             datatype: "text"
         })
             .done(function (result) {
-                if (result.err || result.picUrl == '') {
+                if (!result || result.picUrl == '') {
                     alert('재조회 실패!');
                     $('#reSearchDiv').css('display', 'block');
                 } else {

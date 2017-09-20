@@ -18,17 +18,17 @@ var options = {
     ca: fs.readFileSync('C:/Users/SB/Desktop/zzim-node.zz.am_20170907M39K/RootChain/ca-bundle.pem')
 };
 */
-var options = {
-    key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
-    cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
-    ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
-};
-
-var https = require('https');
-https.createServer(options, app).listen(3003, function () {
-    console.log("3003 running");
-    cron.batch();
-})
+// var options = {
+//     key: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.key.pem'),
+//     cert: fs.readFileSync('./comodo/zzim-node.zz.am_20170907M39K.crt.pem'),
+//     ca: fs.readFileSync('./comodo/RootChain/ca-bundle.pem')
+// };
+//
+// var https = require('https');
+// https.createServer(options, app).listen(3003, function () {
+//     console.log("3003 running");
+//     cron.batch();
+// })
 
 
 
@@ -42,7 +42,9 @@ app.use(function (req, res, next) {
 
 app.post("/track", function (req, res) {
     var url = req.body.url;
+    console.log('track;;;;;');
     track.search(url, function (result) {
+      console.log('result::::::::', result);
         res.send(result);
     });
 });
@@ -63,7 +65,7 @@ app.post('/checkEmail', function (request, response) {
     }
     console.log("/checkEmail::", loginData);
     cart.setCookiesAtAddLoginData(loginData, function (result) {
-        console.log("result:::", result);
+        // console.log("result:::", result);
         response.status(200).json({"result": result});
     })
 });
@@ -75,19 +77,19 @@ app.post("/addDB", function (req, res) {
         'email': req.body.email,
         'pLowest': req.body.pLowest
     }
+    console.log('웹에서 받은 crawlingUrl::::::::::::;', data.crawlingUrl);
     track.startTracking(data, function (result) {
       console.log('result:::::::::::', result);
-        res.send(result);
+      res.send(result);
+
     });
+
+
 });
 
 app.post("/reSearch", function (req, res) {
-    var data = {
-        'title': req.body.reSearchTitle,
-        'url': req.body.url
-    }
-    track.reSearch(data, function (result) {
-        res.send(result);
+    track.reSearch(req.body.pName, function (err, result) {
+      res.send(result);
     });
 });
 
@@ -101,9 +103,7 @@ app.post("/login", function (req, res) {
     });
 });
 
-/*
 app.listen(3003, function(req, res) {
     console.log('connected 3003 server');
     cron.batch();
 });
-*/

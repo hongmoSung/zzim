@@ -12,7 +12,6 @@ const By = webdriver.By;
 
 function search(url, func) {
     var $;
-    var startTime = new Date().getTime();
     var task;
     task = [
         function (callback) {
@@ -48,194 +47,177 @@ function search(url, func) {
                         $ = cheerio.load(body);
                         title = $('#frmMain > h1').text();
                     }
-                    callback(null, title);
+                    callback(null, null, title);
+                } else {
+                  callback(null, err);
                 }
             });
         },
-        function (title, callback) {
+        function (err, title, callback) {
+          if(err) {
+            callback(null, err);
+          } else {
             var form = {
-                "q": 'site:danawa.com 가격비교 ' + title
+              "q": 'site:danawa.com 가격비교 ' + title
             };
             var formData = qs.stringify(form);
             var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
             //console.log('googleSearchUrl:::::::::::: ' + googleSearchUrl);
             var option = {
-                method: "GET",
-                url: googleSearchUrl,
-                headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-                encoding: null
+              method: "GET",
+              url: googleSearchUrl,
+              headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
+              encoding: null
             };
             request(option, function (err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    var strContents = new Buffer(body);
-                    body = iconv.decode(strContents, 'utf-8').toString();
-                    $ = cheerio.load(body);
-                    var url = $('cite._Rm').html();
-                    url += '';
-                    //console.log('url :::::::::::::::::::::::: ', url);
-                    if (url.indexOf('prod') == -1) {
-                        console.log('구글 검색 결과가 없습니다.......................');
-                        callback(null, 'err');
-                    } else {
-                        url = "http://" + url;
-                        callback(null, url);
-                    }
+              if (!err && res.statusCode == 200) {
+                var strContents = new Buffer(body);
+                body = iconv.decode(strContents, 'utf-8').toString();
+                $ = cheerio.load(body);
+                var url = $('cite._Rm').html();
+                url += '';
+                //console.log('url :::::::::::::::::::::::: ', url);
+                if (url.indexOf('prod') == -1) {
+                  console.log('구글 검색 결과가 없습니다.......................');
+                  callback(null, null, null);
+                } else {
+                  url = "http://" + url;
+                  callback(null, null, url);
                 }
+              } else {
+                callback(null, err)
+              }
             });
+          }
         },
-        function (url, callback) {
-            if (url == 'err') {
-                console.log('에러 처리 ..................');
+        function (err, url, callback) {
+          if(err) {
+            callback(err);
+          } else {
+            var option = {
+              method: "GET",
+              url: url,
+              headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
+              encoding: null
+            };
+            request(option, function (err, res, body) {
+              if (!err && res.statusCode == 200) {
+                var strContents = new Buffer(body);
+                body = iconv.decode(strContents, 'EUC-KR').toString();
+                $ = cheerio.load(body);
+
+                var img = $('#img_areas > a > img').attr('src');
+                var itemName = $('p.goods_title').text().trim();
+                var itemPrice = $('.big_price').text().trim();
                 var item = {
-                    'err': true
+                  'err': false,
+                  'picUrl': img,
+                  'pName': itemName,
+                  'crawlingUrl': url,
+                  'pLowest': itemPrice
                 };
                 callback(null, item);
-            } else {
-                var option = {
-                    method: "GET",
-                    url: url,
-                    headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-                    encoding: null
-                };
-                request(option, function (err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        var strContents = new Buffer(body);
-                        body = iconv.decode(strContents, 'EUC-KR').toString();
-                        $ = cheerio.load(body);
-
-                        var img = $('#img_areas > a > img').attr('src');
-                        var itemName = $('p.goods_title').text().trim();
-                        var itemPrice = $('.big_price').text().trim();
-                        var item = {
-                            'err': false,
-                            'picUrl': img,
-                            'pName': itemName,
-                            'crawlingUrl': url,
-                            'pLowest': itemPrice
-                        };
-                        callback(null, item);
-
-                    }
-                });
-            }
+              } else {
+                callback(err);
+              }
+            });
+          }
         }
     ];
     async.waterfall(task, function (err, result) {
-        if (err)
-            console.log('err');
-        else {
-            func(result);
+        if (err) {
+          console.log('search err');
+          func(null);
+        } else {
+          func(result);
         }
     });
 };
 
 //재검색
-function reSearch(data, func) {
+function reSearch(pName, func) {
     var $;
-    // var startTime = new Date().getTime();
     var task;
+    var url = '';
     task = [
         function (callback) {
-            var option = {
+          var form = {
+            "q": 'site:danawa.com 가격비교 ' + pName
+          };
+          var formData = qs.stringify(form);
+          var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
+          var option = {
+            method: "GET",
+            url: googleSearchUrl,
+            headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
+            encoding: null
+          };
+          request(option, function (err, res, body) {
+            if (!err && res.statusCode == 200) {
+              var strContents = new Buffer(body);
+              body = iconv.decode(strContents, 'utf-8').toString();
+              $ = cheerio.load(body);
+              url = $('cite._Rm').html();
+              if (url.indexOf('prod') == -1) {
+                callback(null, err);
+              } else {
+                url = "http://" + url;
+                if (url.indexOf('prod') != -1) {
+                  callback(null, null);
+                } else {
+                  callback(null, err);
+                }
+              }
+            } else {
+              callback(null, err);
+            }
+          });
+        },
+        function (err, callback) {
+          if(err) {
+            callback(err);
+          } else {
+              var option = {
                 method: "GET",
-                url: data.url,
+                url: url,
                 headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
                 encoding: null
-            };
-            request(option, function (err, res, body) {
-                var strContents = new Buffer(body);
-                body = iconv.decode(strContents, 'utf-8').toString();
-                $ = cheerio.load(body);
-                var form = {
-                    "q": 'site:danawa.com 가격비교 ' + data.title
-                };
-                var formData = qs.stringify(form);
-                var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
-                // console.log('googleSearchUrl:::::::::::: ' + googleSearchUrl);
-                var option = {
-                    method: "GET",
-                    url: googleSearchUrl,
-                    headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-                    encoding: null
-                };
-                request(option, function (err, res, body) {
-                    var strContents = new Buffer(body);
-                    body = iconv.decode(strContents, 'utf-8').toString();
-                    $ = cheerio.load(body);
-                    var url = $('cite._Rm').html();
-                    // console.log('url :::::::::::::::::::::::: ', url);
-                    if (url.indexOf('prod') == -1) {
-                        // console.log('구글 검색 결과가ㅣ 없습니다.......................');
-                        callback(null, 'err');
-                    } else {
-                        url = "http://" + url;
-                        //console.log('url :::::::::::::::::::::::: ', url);
-                        if (url.indexOf('prod') != -1) {
-                            // console.log('내가 원하는 주소.....');
-                            callback(null, url);
-                        } else {
-                            // console.log('내가 원하지 않는 주소.....');
-                            callback(null, 'err2');
-                        }
-                    }
-                });
-            });
-        },
-        function (url, callback) {
-            // console.log('url ::::::::::::::', url);
-            if (url == 'err' || url == 'err2') {
-                // console.log('에러 처리 ..................');
-                var item = {
-                    'err': true
-                };
-                callback(null, item);
-            } else {
-                var option = {
-                    method: "GET",
-                    url: url,
-                    headers: {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36"},
-                    encoding: null
-                };
-                request(option, function (err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        var strContents = new Buffer(body);
-                        body = iconv.decode(strContents, 'EUC-KR').toString();
-                        $ = cheerio.load(body);
+              };
+              request(option, function (err, res, body) {
+                if (!err && res.statusCode == 200) {
+                  var strContents = new Buffer(body);
+                  body = iconv.decode(strContents, 'EUC-KR').toString();
+                  $ = cheerio.load(body);
 
-                        var img = $('#img_areas > a > img').attr('src');
-                        var itemName = $('p.goods_title').text().trim();
-                        var itemPrice = $('.big_price').text().trim();
-                        var item = {
-                            'err': false,
-                            'picUrl': img,
-                            'pName': itemName,
-                            'crawlingUrl': url,
-                            'pLowest': itemPrice
-                        };
-                        console.log(item);
-                        callback(null, item);
-                    } else {
-                        callback(err, null);
-                    }
-                });
-
-            }
+                  var img = $('#img_areas > a > img').attr('src');
+                  var itemName = $('p.goods_title').text().trim();
+                  var itemPrice = $('.big_price').text().trim();
+                  var item = {
+                    'err': false,
+                    'picUrl': img,
+                    'pName': itemName,
+                    'crawlingUrl': url,
+                    'pLowest': itemPrice
+                  };
+                  callback(null, item);
+                } else {
+                  callback(err);
+                }
+              });
+          }
         }
     ];
     async.waterfall(task, function (err, result) {
         if (err) {
-            func(result);
-            console.log('err');
+          func(err);
         } else {
-            console.log('not err');
-            func(result);
+          func(null, result);
         }
     });
 }
 
 //cron crawling
 function crawlingForScheduling(url, callback) {
-    // console.log('crawlingForScheduling url :::::::', url);
     var option = {
         method: "GET",
         url: url,
@@ -243,99 +225,86 @@ function crawlingForScheduling(url, callback) {
         encoding: null
     };
     request(option, function (err, res, body) {
-        if (err || typeof body != 'object') {
-            console.log('crawlingForScheduling err....');
-            callback(err, null);
-        } else {
-            var strContents = new Buffer(body);
-            body = iconv.decode(strContents, 'EUC-KR').toString();
-            $ = cheerio.load(body);
+      if (!err && res.statusCode == 200) {
+        var strContents = new Buffer(body);
+        body = iconv.decode(strContents, 'EUC-KR').toString();
+        $ = cheerio.load(body);
 
-            var pLowest = $('div.goods_detail_area > div.goods_buy_line > a > span.big_price').text().trim().replace(/,/gi, '');
-            var pName = $('p.goods_title').text().trim();
-            var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
-            var picUrl = $('#img_areas > a > img').attr('src');
-            var crawlingUrl = url;
+        var pLowest = $('div.goods_detail_area > div.goods_buy_line > a > span.big_price').text().trim().replace(/,/gi, '');
+        var pName = $('p.goods_title').text().trim();
+        var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
+        var picUrl = $('#img_areas > a > img').attr('src');
+        var crawlingUrl = url;
 
-            var mainSite = {
-                'gmarket': 'EE715',
-                '11st': 'TH201',
-                'auction': 'EE715',
-                'tmon': 'TN920',
-                '위메프': 'TN729',
-            }
-            /*
-            pLowest = pLowest.trim().replace(',', '');
-            console.log(':::::::::::::::', pLowest);
-            */
-            var cmpnyc = '';
-            var link_pcode = '';
-            if (typeof pUrl == 'undefined' || typeof pUrl == 'err') {
-                cmpnyc = 'err';
-                link_pcode = 'err';
-                pLowest = -1;
-            }
-            else {
-
-                // 회사 코드
-                cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
-                //console.log('cmpnyc :::::::::::::::::::::::::::: ', cmpnyc);
-
-                var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
-                link_pcode = b[0];
-                //console.log('link_pcode::::::::::::::::::::::::::::::::::', link_pcode);
-                var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
-                pcode = c[0];
-            }
-
-            switch (cmpnyc) {
-                case 'EE128':
-                    //console.log('gmarket::::::::::::::');
-                    pUrl = 'http://item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
-                    break;
-                case 'TH201':
-                    //console.log('11st::::::::::::::');
-                    pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
-                    break;
-                case 'EE715':
-                    //console.log('auction::::::::::::::');
-                    pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
-                    break;
-                case 'TN920':
-                    //console.log('tmon::::::::::::::');
-                    pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
-                    break;
-                case 'TN729':
-                    //console.log('위메프::::::::::::::');
-                    if (link_pcode.indexOf('_') != -1) {
-                        var we = link_pcode.split('_');
-                        link_pcode = we[1];
-                    }
-                    pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
-                    break;
-                case 'ED910':
-                    //console.log('인터파크::::::::::::::');
-                    pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
-                    break;
-                case 'err':
-                    pUrl = link_pcode;
-                    break;
-                default:
-
-            }
-            var product = {
-                'pName': pName,
-                'pUrl': pUrl,
-                'pLowest': pLowest,
-                'picUrl': picUrl,
-                'crawlingUrl': crawlingUrl,
-                'cmpnyc': cmpnyc,
-                'link_pcode': link_pcode,
-                'pcode': pcode
-            }
-            callback(null, product);
+        var mainSite = {
+          'gmarket': 'EE715',
+          '11st': 'TH201',
+          'auction': 'EE715',
+          'tmon': 'TN920',
+          '위메프': 'TN729',
         }
+        var cmpnyc = '';
+        var link_pcode = '';
+        // 회사 코드
+        cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
+        //console.log('cmpnyc :::::::::::::::::::::::::::: ', cmpnyc);
 
+        var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
+        link_pcode = b[0];
+        //console.log('link_pcode::::::::::::::::::::::::::::::::::', link_pcode);
+        var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
+        pcode = c[0];
+
+        switch (cmpnyc) {
+          case 'EE128':
+            //console.log('gmarket::::::::::::::');
+            pUrl = 'http://item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
+            break;
+          case 'TH201':
+            //console.log('11st::::::::::::::');
+            pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
+            break;
+          case 'EE715':
+            //console.log('auction::::::::::::::');
+            pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
+            break;
+          case 'TN920':
+            //console.log('tmon::::::::::::::');
+            pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
+            break;
+          case 'TN729':
+            //console.log('위메프::::::::::::::');
+            if (link_pcode.indexOf('_') != -1) {
+              var we = link_pcode.split('_');
+              link_pcode = we[1];
+            }
+            pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
+            break;
+          case 'ED910':
+            //console.log('인터파크::::::::::::::');
+            pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
+            break;
+          case 'err':
+            pUrl = link_pcode;
+            break;
+          default:
+
+        }
+        var product = {
+          'pName': pName,
+          'pUrl': pUrl,
+          'pLowest': pLowest,
+          'picUrl': picUrl,
+          'crawlingUrl': crawlingUrl,
+          'cmpnyc': cmpnyc,
+          'link_pcode': link_pcode,
+          'pcode': pcode
+        }
+        callback(null, product);
+
+      } else {
+        callback(err, null);
+      }
     });
 };
 
@@ -348,8 +317,8 @@ function startTracking(data, func) {
     var pLowest = data.pLowest;
 
     var msg = {
-        'result': false,
-        'msg': '트렉킹 실패'
+        'result': true,
+        'msg': '등록되었습니다.'
     };
 
     db.selectProduct(pName, function (err, rows) {
@@ -390,21 +359,21 @@ function startTracking(data, func) {
                     }
                 });
             } else {
-                track(crawlingUrl, function (err, result) {
+                func(msg);
+                track(data.crawlingUrl, function (err, result) {
                     if (err) {
-                        func(msg);
+                        // func(msg);
                     } else {
                         var data = result;
                         db.addProduct(data, function (err, result) {
                             if (err) {
                                 console.log('addProduct err');
-                                func(msg);
+                                // func(msg);
                             } else {
                                 if (result) {
                                     db.selectProduct(pName, function (err, rows) {
                                         if (err) {
-                                            // callback(err);
-                                            func(msg);
+                                            // func(msg);
                                         } else {
                                             var pNo = rows[0].pNo;
                                             if (rows) {
@@ -412,7 +381,8 @@ function startTracking(data, func) {
                                                     if (err) {
                                                         msg.result = false;
                                                         msg.msg = "유효하지 않는 email입니다. email을 재설정 해주세요"
-                                                        func(msg);
+                                                        console.log('유효하지 않는 email입니다. email을 재설정 해주세요');
+                                                        // func(msg);
                                                     } else {
                                                       if (result) {
                                                         //
@@ -423,18 +393,18 @@ function startTracking(data, func) {
                                                         db.addHistory(product, function(err, result) {
                                                           if(err) {
                                                             console.log('addHistory err');
-                                                            func(result);
+                                                            // func(result);
                                                           } else {
                                                             if(result) {
                                                               msg.result = true;
                                                               msg.msg = "트렉킹 성공";
                                                               console.log('add history success');
-                                                              func(msg);
+                                                              // func(msg);
                                                             }
                                                           }
                                                         });
                                                       } else {
-                                                        func(msg);
+                                                        // func(msg);
                                                       }
                                                     }
                                                 });
@@ -456,6 +426,7 @@ function track(url, callback) {
     var pcode = '';
     var cmpnyc = '';
     var cmpnyUrl = '';
+    var link_pcode = '';
     var task = [
         function (callback) {
             var option = {
@@ -465,6 +436,7 @@ function track(url, callback) {
                 encoding: null
             };
             request(option, function (err, res, body) {
+              if (!err && res.statusCode == 200) {
                 var strContents = new Buffer(body);
                 body = iconv.decode(strContents, 'EUC-KR').toString();
                 $ = cheerio.load(body);
@@ -474,100 +446,111 @@ function track(url, callback) {
                 var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
                 var picUrl = $('#img_areas > a > img').attr('src');
                 var crawlingUrl = url;
-
+                console.log('url :::::::::::::::', pUrl);
                 cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
 
                 var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
-                var link_pcode = b[0];
+                link_pcode = b[0];
+                console.log('첫번째 link_pcode::::::::::::::::::::::', b[0]);
+                console.log('첫번째2 link_pcode::::::::::::::::::::::', link_pcode);
                 var c = pUrl.substr(pUrl.indexOf('pcode') + 'pcode'.length + 1).split('&');
                 pcode = c[0];
 
                 var flag = false;
 
                 product = {
-                    'pName': pName,
-                    'pUrl': pUrl,
-                    'pLowest': pLowest,
-                    'picUrl': picUrl,
-                    'crawlingUrl': crawlingUrl
+                  'pName': pName,
+                  'pUrl': pUrl,
+                  'pLowest': pLowest,
+                  'picUrl': picUrl,
+                  'crawlingUrl': crawlingUrl
                 }
 
                 switch (cmpnyc) {
-                    case 'EE128':
-                        product.pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
-                        flag = true;
-                        break;
-                    case 'TH201':
-                        product.pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
-                        flag = true;
-                        break;
-                    case 'EE715':
-                        product.pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
-                        flag = true;
-                        break;
-                    case 'TN920':
-                        product.pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
-                        flag = true;
-                        break;
-                    case 'TN729':
-                        if (link_pcode.indexOf('_') != -1) {
-                            var we = link_pcode.split('_');
-                            link_pcode = we[1];
-                        }
-                        product.pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
-                        flag = true;
-                        break;
-                    case 'ED910':
-                        product.pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
-                        flag = true;
-                        break;
-                    default:
+                  case 'EE128':
+                    product.pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
+                    flag = true;
+                  break;
+                  case 'TH201':
+                    product.pUrl = 'http://www.11st.co.kr/product/SellerProductDetail.tmall?method=getSellerProductDetail&prdNo=' + link_pcode;
+                    flag = true;
+                  break;
+                  case 'EE715':
+                    product.pUrl = 'http://itempage3.auction.co.kr/DetailView.aspx?ItemNo=' + link_pcode;
+                    flag = true;
+                  break;
+                  case 'TN920':
+                    product.pUrl = 'http://www.ticketmonster.co.kr/deal/' + link_pcode;
+                    flag = true;
+                  break;
+                  case 'TN729':
+                    if (link_pcode.indexOf('_') != -1) {
+                      var we = link_pcode.split('_');
+                      link_pcode = we[1];
+                    }
+                    product.pUrl = 'http://www.wemakeprice.com/deal/adeal/' + link_pcode;
+                    flag = true;
+                    break;
+                  case 'ED910':
+                    product.pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
+                    flag = true;
+                    break;
+                  default:
                 }
-                callback(null, cmpnyc, flag)
+                callback(null, null, cmpnyc, flag)
+              } else {
+                callback(null, err);
+              }
             });
 
         },
-        function (cmpnyc, flag, callback) {
+        function (err, cmpnyc, flag, callback) {
+          if(err) {
+            callback(err);
+          } else {
             if (!flag) {
-                db.selectSite(cmpnyc, function (err, rows) {
-                    if (rows) {
-                        cmpnyUrl = rows[0].cmpnyUrl;
-                        product.pUrl = cmpnyUrl + '?nProdCode=' + pcode;
-                        console.log('pUrl ************************ ', product.pUrl);
-                        flag = true;
-                        callback(null, flag);
-                    } else {
-                        var data = {
-                            'url': url,
-                            'pcode': pcode,
-                            'cmpnyc': cmpnyc
-                        }
-                        getSiteUrlAtStartTracking(data, function (err, result) {
-                            if (err) {
-                                console.log("getSiteUrlAtStartTracking :: error");
-                                callback("err");
-                            } else {
-                                // console.log('result::::::::::::::', result);
-                                product.pUrl = result;
-                                callback(null);
-                            }
-                        });
+              db.selectSite(cmpnyc, function (err, rows) {
+                if (rows) {
+                  cmpnyUrl = rows[0].cmpnyUrl;
+                  if(link_pcode != '') {
+                    product.pUrl = cmpnyUrl + '?pd_no=' + link_pcode;
+                  } else {
+                    product.pUrl = cmpnyUrl + '?nProdCode=' + pcode;
+                  }
+                  callback(null, product);
+                } else {
+                    var data = {
+                      'url': url,
+                      'pcode': pcode,
+                      'cmpnyc': cmpnyc,
+                      'link_pcode': link_pcode
                     }
-                });
+                  console.log('selenium 실행');
+                  getSiteUrlAtStartTracking(data, function (err, result) {
+                    if (err) {
+                      console.log("getSiteUrlAtStartTracking :: error");
+                      callback(err);
+                    } else {
+                      product.pUrl = result;
+                      callback(null, product);
+                    }
+                  });
+                }
+              });
             } else {
-                console.log("seleinum 실행 안돼시발");
-                callback(null);
+              callback(null, product);
             }
+
+          }
 
         }
     ];
-    async.waterfall(task, function (err) {
-        if (err) {
-            console.log('err');
-            callback(err, null);
-        } else {
-            callback(null, product);
-        }
+    async.waterfall(task, function (err, product) {
+      if(err) {
+        callback(err, null);
+      } else {
+        callback(null, product);
+      }
     });
 }
 
@@ -575,8 +558,7 @@ function trackScheduling() {
     var a = [];
     db.selectAllProduct(function (err, rows) {
         if (err) {
-            return msg = 'selectAllProduct err';
-            console.log('selectAllProduct err');
+            console.log('selectAllProduct err::::::::::::::');
         } else {
             if (rows) {
                 if (rows.length > 0) {
@@ -585,15 +567,12 @@ function trackScheduling() {
                         a[i] = row;
                         crawlingForScheduling(a[i].crawlingUrl, function (err, product) {
                             if (err) {
-                                // msg = 'crawlingForScheduling err :::::::::::::::::::: ', a[i].pNo;
-                                console.log('crawlingForScheduling err ::::::::::::::::::::', a[i].pNo);
+                                console.log('crawlingForScheduling err::::::::::::::', a[i].pNo);
                             } else {
                                 product.pNo = a[i].pNo;
                                 db.addHistory(product, function (err, result) {
                                     if (err) {
-                                        // return msg = 'addHistory err';
-                                        // msg = '스케쥴링 실패';
-                                        console.log('addHistory err');
+                                        console.log('addHistory err::::::::::::::');
                                     } else {
                                         // msg = '스케쥴링 성공';
                                         if (a[i].pLowest != product.pLowest) {
@@ -606,7 +585,6 @@ function trackScheduling() {
                                                     console.log('가격변동 중 selenium 대상이 아닌것,,,, :::::::  ', product.pNo);
                                                     if (err) {
                                                         console.log('selectSite err::::::::::::::::::::::', cmpnyc);
-                                                        // return msg = 'selectSite err',
                                                     } else {
                                                         if (rows) {
                                                             console.log('rows::::', rows);
@@ -618,12 +596,10 @@ function trackScheduling() {
                                                             console.log('selenium 대상,,,, :::::::  ', product.pNo);
                                                             getSiteUrlAtTrackScheduling(product, function (err, result) {
                                                                 if (err) {
-                                                                    // msg = 'updateProductFromSelenium err';
                                                                     console.log('getSiteUrlAtTrackScheduling err');
                                                                 } else {
                                                                     if (result) {
                                                                         console.log(result);
-                                                                        // msg = 'updateProductFromSelenium success';
                                                                         console.log('getSiteUrlAtTrackScheduling success');
                                                                     }
                                                                 }
@@ -654,19 +630,16 @@ function updateProductAtScheduling(product) {
         if (err) {
             console.log('updateProduct err');
         } else {
-            // callback(err);
             if (result) {
                 db.selectTracking(product.pNo, function (err, rows, fields) {
                     if (err) {
                         console.log('selectTracking err');
-                        // callback(err);
                     } else {
                         if (rows) {
                             var data = rows;
                             db.selectToken(rows, function (err, rows) {
                                 if (err) {
                                     console.log('selectToken err');
-                                    // callback(err);
                                 } else {
                                     var tokenArrWeb = [];
                                     var tokenArrAndroid = [];
@@ -687,9 +660,7 @@ function updateProductAtScheduling(product) {
                                             }
                                         });
                                     } else {
-                                        // msg = 'selectToken 없음';
                                         console.log('selectToken 없음');
-                                        // callback(err);
                                     }
                                     fire.sendNotificationWeb(product.pName, product.pNo, tokenArrWeb);
                                     fire.sendNotificationAndroid(product.pName, product.pNo, tokenArrAndroid);
@@ -697,7 +668,6 @@ function updateProductAtScheduling(product) {
                             });
                         } else {
                             console.log('가격변동 상품중에 알림가격을 만족하는 상품이 없습니다. 상품코드 ::: ', product.pNo);
-                            // callback(null);
                         }
                     }
                 });
@@ -707,7 +677,9 @@ function updateProductAtScheduling(product) {
 }
 
 function getSiteUrlAtStartTracking(data, callback) {
+
     var driver = new webdriver.Builder().forBrowser('phantomjs').build();
+
     driver.then(function () {
         driver.get(data.url);
         driver.findElement(By.css('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)')).click()
@@ -720,30 +692,58 @@ function getSiteUrlAtStartTracking(data, callback) {
             })
             .then(function (currentUrl) {
                 var cmpnyUrl = currentUrl.substr(0, currentUrl.indexOf('?'));
-                var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
-                var data2 = {
+                // var pUrl = '';
+                // var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
+                // var pUrl = cmpnyUrl + '?pd_no=' + data.pcode;
+
+                if(data.link_pcode != -1) {
+                  console.log('link_pcode가 있습니다.');
+                } else {
+                  console.log('link_pcode가 없습니다.');
+                }
+
+                if(currentUrl.indexOf('pd_no') != -1) {
+                console.log('pd_no');
+                  var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                  var pd_no = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                  data.pUrl = cmpnyUrl + '?pd_no=' + pd_no;
+                } else if(currentUrl.indexOf('pcode') != -1) {
+                  console.log('pcode');
+                  var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                  var pcode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                  data.pUrl = cmpnyUrl + '?pcode=' + pcode;
+                } else if(currentUrl.indexOf('nProdCode') != -1) {
+                  console.log('nProdCode');
+                  var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                  var nProdCode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                  data.pUrl = cmpnyUrl + '?nProdCode=' + nProdCode;
+                }
+                var site = {
                     'cmpnyc': data.cmpnyc,
                     'cmpnyUrl': cmpnyUrl
                 }
-                db.addSite(data2, function (err, result) {
+                db.addSite(site, function (err, result) {
+                  if(err) {
+                    console.log('insert addSite err::::::::::::::');
+                    callback("err");
+                  } else {
                     if (result) {
-                        console.log('insert addSite 성공.....');
-                        callback(null, pUrl);
+                      console.log('insert addSite 성공.....', data);
+                      callback(null, data.pUrl);
                     } else {
-                        callback("err");
+                      callback("err");
                     }
+                  }
                 });
             });
     }, function (err) {
-        console.log(err);
-        console.log("err - getSiteUrlAtStartTracking");
+        console.log("err - getSiteUrlAtStartTracking::::::::::::::");
         callback("err");
     });
 
 }
 
 function getSiteUrlAtTrackScheduling(data, callback) {
-    console.log("data::::", data);
     var driver = new webdriver.Builder().forBrowser('phantomjs').build();
     driver.then(function () {
         driver.get(data.pUrl)
@@ -752,14 +752,20 @@ function getSiteUrlAtTrackScheduling(data, callback) {
                 return driver.getCurrentUrl();
             })
             .then(function (currentUrl) {
-                var cmpnyUrl = currentUrl.substr(0, currentUrl.indexOf('?'));
-                var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
-                var data2 = {
-                    'cmpnyc': data.cmpnyc,
-                    'cmpnyUrl': cmpnyUrl
-                }
+              var pUrl = '';
+              if(data.link_pcode != '') {
+                pUrl = cmpnyUrl + '?pd_no=' + data.link_pcode;
+              } else {
+                pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
+              }
+              // var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
+              // var pUrl = cmpnyUrl + '?pd_no=' + data.pcode;
+              var site = {
+                  'cmpnyc': data.cmpnyc,
+                  'cmpnyUrl': cmpnyUrl
+              }
                 data.pUrl = pUrl;
-                db.addSite(data2, function (err, result) {
+                db.addSite(site, function (err, result) {
                     if (err) {
                         callback(err);
                     } else {
