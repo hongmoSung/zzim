@@ -751,37 +751,50 @@ function getSiteUrlAtTrackScheduling(data, callback) {
                 return driver.getCurrentUrl();
             })
             .then(function (currentUrl) {
-              var pUrl = '';
-              if(data.link_pcode != '') {
-                pUrl = cmpnyUrl + '?pd_no=' + data.link_pcode;
+              if(data.link_pcode != -1) {
+                console.log('link_pcode가 있습니다.');
               } else {
-                pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
+                console.log('link_pcode가 없습니다.');
               }
-              // var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
-              // var pUrl = cmpnyUrl + '?pd_no=' + data.pcode;
+
+              if(currentUrl.indexOf('pd_no') != -1) {
+              console.log('pd_no');
+                var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                var pd_no = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                data.pUrl = cmpnyUrl + '?pd_no=' + pd_no;
+              } else if(currentUrl.indexOf('pcode') != -1) {
+                console.log('pcode');
+                var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                var pcode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                data.pUrl = cmpnyUrl + '?pcode=' + pcode;
+              } else if(currentUrl.indexOf('nProdCode') != -1) {
+                console.log('nProdCode');
+                var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
+                var nProdCode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
+                data.pUrl = cmpnyUrl + '?nProdCode=' + nProdCode;
+              }
               var site = {
                   'cmpnyc': data.cmpnyc,
                   'cmpnyUrl': cmpnyUrl
               }
-                data.pUrl = pUrl;
-                db.addSite(site, function (err, result) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        console.log('insert addSite 성공.....');
-                        db.updateProduct(data, function (err, result) {
-                            if (err) {
-                                console.log('updateProduct err');
-                                callback(err)
-                            } else {
-                                if (result) {
-                                    console.log('getSiteUrlAtTrackScheduling 성공');
-                                    callback(null, result);
-                                }
-                            }
-                        });
-                    }
-                });
+              db.addSite(site, function (err, result) {
+                  if (err) {
+                      callback(err);
+                  } else {
+                      console.log('insert addSite 성공.....');
+                      db.updateProduct(data, function (err, result) {
+                          if (err) {
+                              console.log('updateProduct err');
+                              callback(err)
+                          } else {
+                              if (result) {
+                                  console.log('getSiteUrlAtTrackScheduling 성공');
+                                  callback(null, result);
+                              }
+                          }
+                      });
+                  }
+              });
             });
     }, function (err) {
         console.log(err);
