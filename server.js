@@ -7,7 +7,7 @@ var track = require('./service/trackService.js');
 var CryptoJS = require("crypto-js");
 var cart = require('./service/cartService');
 var fs = require("fs");
-var user = require('./service/user.js');
+var user = require('./service/userService.js');
 require('date-utils');
 process.setMaxListeners(100);
 
