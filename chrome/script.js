@@ -1,4 +1,4 @@
-var email;
+var gEmail;
 chrome.tabs.getSelected(null, function (tab) {
     console.log('tabsss:::::::::::::::', tab.url);
     (function () {
@@ -11,8 +11,8 @@ chrome.tabs.getSelected(null, function (tab) {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    // url: 'https://zzim-node.zz.am:3003/user/loginCheck'
-                    url: 'http://localhost:9080/user/loginCheck'
+                    url: 'https://zzim-node.zz.am:3003/user/loginCheck'
+                    //url: 'http://localhost:9080/user/loginCheck'
                 }).done(function (result) {
                     console.log("aaaa");
                     console.log(result);
@@ -41,8 +41,8 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json; charset=UTF-8",
                 "X-HTTP-Method-Override": "POST"
             },
-            // url: "https://zzim-node.zz.am:3003/track",
-            url: "http://localhost:3003/track",
+            url: "https://zzim-node.zz.am:3003/track",
+            // url: "http://localhost:3003/track",
             data: JSON.stringify({
                 url: tab.url
             }),
@@ -168,8 +168,8 @@ chrome.tabs.getSelected(null, function (tab) {
                 "Content-Type": "application/json",
                 "X-HTTP-Method-Override": "POST"
             },
-            // url: "https://zzim-node.zz.am:3003/reSearch",
-            url: "http://localhost:3003/reSearch",
+            url: "https://zzim-node.zz.am:3003/reSearch",
+            // url: "http://localhost:3003/reSearch",
             data: JSON.stringify({
                 'pName': reSearchTitle
             }),
@@ -249,8 +249,8 @@ $('#productInfo').on("click", "#trackBtn", function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        // url: "https://zzim-node.zz.am:3003/addDB",
-        url: "http://localhost:3003/addDB",
+        url: "https://zzim-node.zz.am:3003/addDB",
+        // url: "http://localhost:3003/addDB",
         data: JSON.stringify(p),
         datatype: "text"
     })

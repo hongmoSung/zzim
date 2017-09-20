@@ -4,8 +4,7 @@ const request = require('request');
 var qs = require("querystring");
 var iconv = require('iconv-lite');
 var db = require('../ourDb.js');
-var mail = require('../mail.js');
-var fire = require('../fcm.js');
+var notification = require('./notificationService.js');
 require('date-utils');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
@@ -647,7 +646,7 @@ function updateProductAtScheduling(product) {
                                         console.log('가격변동...', rows);
                                         // callback(null, rows);
                                         rows.forEach(function (row, i) {
-                                            mail.sendEmail(product, row.email, row.notifyPrice);
+                                            notification.sendEmail(product, row.email, row.notifyPrice);
 
                                             switch (row.device) {
                                                 case 1:
@@ -662,8 +661,8 @@ function updateProductAtScheduling(product) {
                                     } else {
                                         console.log('selectToken 없음');
                                     }
-                                    fire.sendNotificationWeb(product.pName, product.pNo, tokenArrWeb);
-                                    fire.sendNotificationAndroid(product.pName, product.pNo, tokenArrAndroid);
+                                    notification.sendNotificationWeb(product.pName, product.pNo, tokenArrWeb);
+                                    notification.sendNotificationAndroid(product.pName, product.pNo, tokenArrAndroid);
                                 }
                             });
                         } else {
