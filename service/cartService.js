@@ -354,16 +354,20 @@ var executeFuncForScheduling = function (email) {
                                             driver.quit();
                                         }, function (err) {
                                             console.log(err);
+                                            driver.quit();
                                         });
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             });
                         }, function (err) {
                             console.log(err);
+                            driver.quit();
                         });
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - 11st ::", err);
@@ -420,16 +424,20 @@ var executeFuncForScheduling = function (email) {
                                             driver.quit();
                                         }, function (err) {
                                             console.log(err);
+                                            driver.quit();
                                         });
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             });
                         }, function (err) {
                             console.log(err);
+                            driver.quit();
                         });
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - auction ::", err);
@@ -485,21 +493,24 @@ var executeFuncForScheduling = function (email) {
                                                 driver.quit();
                                             }, function (err) {
                                                 console.log(err);
-                                                console.log("err :: driver.getCookies()");
+                                                driver.quit();
                                             });
                                         });
                                     }, function (err) {
                                         console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             })
                         }, function (err) {
                             console.log(err);
-                            console.log("switchTo Err");
+                            driver.quit();
                         });
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - interpark ::", err);
@@ -554,16 +565,20 @@ var executeFuncForScheduling = function (email) {
                                             driver.quit();
                                         }, function (err) {
                                             console.log(err);
+                                            driver.quit();
                                         })
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             });
                         }, function (err) {
                             console.log(err);
+                            driver.quit();
                         })
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - gmarket ::", err);
@@ -583,6 +598,9 @@ var executeFuncForScheduling = function (email) {
         if (err) console.log("err");
         else {
             async.parallel(task4, function (err, result) {
+                if(err){console.log(err)}
+                else{
+                }
             });
         }
     });
@@ -596,8 +614,9 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
     var task5 = [
         function (callback) {
             const driver = new webdriver.Builder().forBrowser('phantomjs').build();
-            driver.manage().timeouts().implicitlyWait(3000);
+
             driver.then(function () {
+                driver.manage().timeouts().implicitlyWait(3000);
                 switch (loginData.website) {
                     case 'gmarket':
                         driver.get('https://signinssl.gmarket.co.kr/login/login?prmtdisp=Y&url=http://escrow.gmarket.co.kr/ko/cart');
@@ -613,15 +632,19 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                                         }
                                     }, function (err) {
                                         console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             });
                         }, function (err) {
                             console.log(err);
+                            driver.quit();
                         });
 
                         break;
@@ -639,15 +662,19 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                                         }
                                     }, function (err) {
                                         console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
+                                    driver.quit();
                                 });
                             }, function (err) {
                                 console.log(err);
+                                driver.quit();
                             });
                         }, function (err) {
                             console.log(err);
+                            driver.quit();
                         });
 
                         break;
@@ -669,15 +696,19 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                                         });
                                     },function(err){
                                         console.log(err);
+                                        driver.quit();
                                     })
                                 },function(err){
                                     console.log(err);
+                                    driver.quit();
                                 })
                             },function(err){
                                 console.log(err);
+                                driver.quit();
                             })
                         },function(err){
                             console.log(err);
+                            driver.quit();
                         });
                         break;
 
@@ -695,18 +726,23 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                                             }
                                         },function(err){
                                             console.log(err);
+                                            driver.quit();
                                         });
                                     },function(err){
                                         console.log(err);
+                                        driver.quit();
                                     })
                                 },function(err){
                                     console.log(err);
+                                    driver.quit();
                                 })
                             },function(err){
                                 console.log(err);
+                                driver.quit();
                             });
                         },function(err){
                             console.log(err);
+                            driver.quit();
                         });
                         break;
                 }
@@ -728,17 +764,20 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                         }
                         driver.then(function () {
                             callback(null, loginData, webCookies);
+                            driver.quit();
                         });
                     },function(err){
                         console.log(err);
+                        driver.quit();
                     })
                 } else {
                     callback("err");
+                    driver.quit();
                 }
             }, function (err) {
                 console.log("err - setWebsite - getCookies : ", err);
             });
-            driver.quit();
+
 
         }, function (loginData, webCookies, callback) {
             db.pool.getConnection(function (err, conn) {

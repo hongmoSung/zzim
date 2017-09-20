@@ -11,7 +11,7 @@ var batch = function () {
         track.trackScheduling();
     });
 
-    cron.schedule('* * * * *', function () {
+    cron.schedule('*/4 * * * *', function () {
         console.log('~~~~~~~~~~~~~~~cart.setCookiesForScheduling()~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
         cart.setCookiesForScheduling();
     });
