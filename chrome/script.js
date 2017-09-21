@@ -5,13 +5,13 @@ chrome.tabs.getSelected(null, function (tab) {
         chrome.storage.sync.get(function (data) {
             gEmail = data.email;
             console.log("chrome storage email == ", gEmail);
-            if (typeof gEmail == 'undefined' || gEmail == "" || gEmail == null) {
+            if (typeof gEmail == 'undefined') {
                 $.ajax({
                     headers: {
                         "Content-Type": "application/json; charset=UTF-8",
                         "X-HTTP-Method-Override": "POST"
                     },
-                    url: 'https://zzim-node.zz.am:3003/user/loginCheck'
+                    url: 'https://zzim.zz.am:/user/loginCheck'
                     //url: 'http://localhost:9080/user/loginCheck'
                 }).done(function (result) {
                     console.log("aaaa");
@@ -52,7 +52,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 $('#reSearchDiv').css('display', 'block');
             } else {
                 var p = result;
-                console.log("info ::: ", p);
+                console.log("info :: ", p);
 
                 $("#reSearchDiv").css("display", "none");
                 html = "";
@@ -70,7 +70,7 @@ chrome.tabs.getSelected(null, function (tab) {
                 html += '   <form class="text-left">';
                 html += '     <h5 class="title text-center" id="priceInfo" class="mb0"></h5>';
                 if (p.pLowest != '') {
-                    html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격">';
+                    html += '     <input class="mb0" type="text" id="notifyPrice" name="notifyPrice" placeholder="알림가격" style="text-align: center; font-size: 25px;">';
                 }
                 html += '     <input class="mb0" type="hidden" id="crawlingUrl" name="crawlingUrl" value="' + p.crawlingUrl + '">';
                 html += '     <button type="button" class="btn btn-lg btn-filled" id="trackBtn">Start tracking!!</button>';
@@ -99,7 +99,8 @@ chrome.tabs.getSelected(null, function (tab) {
         function valueOutput(element) {
             var value = parseInt(element.value);
             var percent = parseInt(value / (element.step));
-            $('#priceInfo').text(percent + '%' + '   -' + parseInt(pLowest - value));
+            // $('#priceInfo').text(percent + '%' + '   -' + parseInt(pLowest - value));
+            $('#priceInfo').text(percent + '%');
             if (percent <= 50) {
                 $('#priceInfo').css('color', 'red');
             } else {
@@ -284,8 +285,8 @@ $("button[name='loginBtn']").click(function () {
             "Content-Type": "application/json",
             "X-HTTP-Method-Override": "POST"
         },
-        // url: "https://zzim-node.zz.am:3003/login",
-        url: "http://localhost:3003/login",
+        url: "https://zzim-node.zz.am:3003/login",
+        // url: "http://localhost:3003/login",
         data: JSON.stringify({
             email: email,
             password: password

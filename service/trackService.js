@@ -61,7 +61,6 @@ function search(url, func) {
                 };
                 var formData = qs.stringify(form);
                 var googleSearchUrl = "https://www.google.co.kr/search?" + formData;
-                //console.log('googleSearchUrl:::::::::::: ' + googleSearchUrl);
                 var option = {
                     method: "GET",
                     url: googleSearchUrl,

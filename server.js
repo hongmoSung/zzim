@@ -80,7 +80,7 @@ app.post("/addDB", function (req, res) {
     }
     console.log('웹에서 받은 crawlingUrl::::::::::::;', data.crawlingUrl);
     track.startTracking(data, function (result) {
-      console.log('result:::::::::::', result);
+      console.log('result::::::::::', result);
       res.send(result);
 
     });

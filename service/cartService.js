@@ -279,7 +279,7 @@ var setCookiesForScheduling = function () {
                 console.log("query : select email from tbl_user : err");
             } else {
                 rows.forEach(function (row, i) {
-                    //console.log("email : ", row.email);
+                    //console.log("email :: ", row.email);
                     executeFuncForScheduling(row.email);
                 })
             }
@@ -324,38 +324,46 @@ var executeFuncForScheduling = function (email) {
                     const driver = new webdriver.Builder().forBrowser('phantomjs').build();
                     driver.then(function () {
                         driver.manage().timeouts().implicitlyWait(3000);
-                        driver.get('https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&xfrom=');
-                        driver.findElement(By.id('loginName')).then(function (el) {
-                            el.sendKeys(websiteList['11st'].websiteId);
-                            driver.findElement(By.id('passWord')).then(function (el) {
-                                el.sendKeys(websiteList['11st'].websitePw);
-                                driver.findElement(By.css('#memLogin > div.save_idW > input')).then(function (el) {
-                                    el.click();
-                                    driver.then(function () {
-                                        driver.manage().getCookies().then(function (cookies) {
-                                            for (var i in cookies) {
-                                                if (cookies[i]['name'] == 'TMALL_AUTH') {
-                                                    elevenCookies += "TMALL_AUTH=" + cookies[i]['value'];
-                                                }
-                                            }
+                        driver.get('https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&xfrom=').then(function () {
+                            driver.findElement(By.id('loginName')).then(function (el) {
+                                el.sendKeys(websiteList['11st'].websiteId);
+                                driver.findElement(By.id('passWord')).then(function (el) {
+                                    el.sendKeys(websiteList['11st'].websitePw);
+                                    driver.findElement(By.css('#memLogin > div.save_idW > input')).then(function (el) {
+                                        el.click().then(function(){
                                             driver.then(function () {
-                                                db.pool.getConnection(function (err, conn) {
-                                                    if (err) {
-                                                        return;
+                                                driver.manage().getCookies().then(function (cookies) {
+                                                    for (var i in cookies) {
+                                                        if (cookies[i]['name'] == 'TMALL_AUTH') {
+                                                            elevenCookies += "TMALL_AUTH=" + cookies[i]['value'];
+                                                        }
                                                     }
-                                                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = '11st'";
-                                                    conn.query(sql, [elevenCookies, email], function (err, rows, fields) {
-                                                        conn.release();
-                                                        if (err) console.log("sql : update tbl_logindata set cookies = ? where email = ? and website = '11st : err");
-                                                        else callback(null, "update 11st cookies");
+                                                    driver.then(function () {
+                                                        db.pool.getConnection(function (err, conn) {
+                                                            if (err) {
+                                                                return;
+                                                            }
+                                                            var sql = "update tbl_logindata set cookies = ? where email = ? and website = '11st'";
+                                                            conn.query(sql, [elevenCookies, email], function (err, rows, fields) {
+                                                                conn.release();
+                                                                if (err) console.log("sql : update tbl_logindata set cookies = ? where email = ? and website = '11st : err");
+                                                                else callback(null, "update 11st cookies");
+                                                            });
+                                                        });
                                                     });
+                                                    driver.quit();
+                                                }, function (err) {
+                                                    console.log(err);
+                                                    driver.quit();
                                                 });
-                                            });
-                                            driver.quit();
-                                        }, function (err) {
+                                            });    
+                                        },function(err){
                                             console.log(err);
                                             driver.quit();
                                         });
+                                    }, function (err) {
+                                        console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
@@ -369,6 +377,7 @@ var executeFuncForScheduling = function (email) {
                             console.log(err);
                             driver.quit();
                         });
+
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - 11st ::", err);
                         callback(null, "update 11st cookies Err!!");
@@ -390,42 +399,51 @@ var executeFuncForScheduling = function (email) {
                     const driver = new webdriver.Builder().forBrowser('phantomjs').build();
                     driver.then(function () {
                         driver.manage().timeouts().implicitlyWait(3000);
-                        driver.get('https://memberssl.auction.co.kr/authenticate/?url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab');
-                        driver.findElement(By.id('id')).then(function (el) {
-                            el.sendKeys(websiteList['auction'].websiteId);
-                            driver.findElement(By.id('password')).then(function (el) {
-                                el.sendKeys(websiteList['auction'].websitePw);
-                                driver.findElement(By.id('Image1')).then(function (el) {
-                                    el.click();
-                                    driver.then(function () {
-                                        driver.manage().getCookies().then(function (cookies) {
-                                            for (var i in cookies) {
-                                                if (i == 0) {
-                                                    auctionCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                } else {
-                                                    auctionCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                }
-                                            }
+                        driver.get('https://memberssl.auction.co.kr/authenticate/?url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab').then(function () {
+                            driver.findElement(By.id('id')).then(function (el) {
+                                el.sendKeys(websiteList['auction'].websiteId);
+                                driver.findElement(By.id('password')).then(function (el) {
+                                    el.sendKeys(websiteList['auction'].websitePw);
+                                    driver.findElement(By.id('Image1')).then(function (el) {
+                                        el.click().then(function(){
                                             driver.then(function () {
-                                                db.pool.getConnection(function (err, conn) {
-                                                    if (err) {
-                                                        return;
+                                                driver.manage().getCookies().then(function (cookies) {
+                                                    for (var i in cookies) {
+                                                        if (i == 0) {
+                                                            auctionCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                        } else {
+                                                            auctionCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                        }
                                                     }
-                                                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'auction'";
-                                                    conn.query(sql, [auctionCookies, email], function (err, rows, fields) {
-                                                        conn.release();
-                                                        if (err) console.log("err");
-                                                        else callback(null, "update auction cookies");
+                                                    driver.then(function () {
+                                                        db.pool.getConnection(function (err, conn) {
+                                                            if (err) {
+                                                                return;
+                                                            }
+                                                            var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'auction'";
+                                                            conn.query(sql, [auctionCookies, email], function (err, rows, fields) {
+                                                                conn.release();
+                                                                if (err) console.log("err");
+                                                                else callback(null, "update auction cookies");
+                                                            });
+                                                        });
+
                                                     });
+
+                                                    driver.quit();
+                                                }, function (err) {
+                                                    console.log(err);
+                                                    driver.quit();
                                                 });
-
-                                            });
-
-                                            driver.quit();
-                                        }, function (err) {
+                                            });    
+                                        },function(err){
                                             console.log(err);
                                             driver.quit();
                                         });
+                                        
+                                    }, function (err) {
+                                        console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
@@ -458,43 +476,52 @@ var executeFuncForScheduling = function (email) {
                     const driver = new webdriver.Builder().forBrowser('phantomjs').build();
                     driver.then(function () {
                         driver.manage().timeouts().implicitlyWait(3000);
-                        driver.get('http://www.interpark.com/order/cartlist.do?_method=cartList&logintgt=cart&wid1=kang&wid2=cartlist&wid3=02');
-                        driver.switchTo().frame('subIframe').then(function () {
-                            driver.findElement(By.id('memId')).then(function (el) {
-                                el.sendKeys(websiteList['interpark'].websiteId);
-                                driver.findElement(By.id('pwdObj')).then(function (el) {
-                                    el.sendKeys(websiteList['interpark'].websitePw);
-                                    driver.findElement(By.css('#login_type1 > table > tbody > tr:nth-child(1) > td:nth-child(2) > img')).then(function (el) {
-                                        el.click();
-                                        driver.then(function () {
-                                            driver.sleep(500);
-                                            driver.manage().getCookies().then(function (cookies) {
-                                                for (var i in cookies) {
-                                                    if (i == 0) {
-                                                        interparkCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                    } else {
-                                                        interparkCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                    }
-                                                }
-                                                driver.then(function () {
-                                                    db.pool.getConnection(function (err, conn) {
-                                                        if (err) {
-                                                            return;
-                                                        }
-                                                        var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'interpark'";
-                                                        conn.query(sql, [interparkCookies, email], function (err, rows, fields) {
-                                                            conn.release();
-                                                            if (err) console.log("err");
-                                                            else callback(null, "update interpark cookies");
+                        driver.get('http://www.interpark.com/order/cartlist.do?_method=cartList&logintgt=cart&wid1=kang&wid2=cartlist&wid3=02').then(function () {
+                            driver.switchTo().frame('subIframe').then(function () {
+                                driver.findElement(By.id('memId')).then(function (el) {
+                                    el.sendKeys(websiteList['interpark'].websiteId);
+                                    driver.findElement(By.id('pwdObj')).then(function (el) {
+                                        el.sendKeys(websiteList['interpark'].websitePw);
+                                        driver.findElement(By.css('#login_type1 > table > tbody > tr:nth-child(1) > td:nth-child(2) > img')).then(function (el) {
+                                            el.click().then(function(){
+                                                    driver.then(function () {
+                                                        driver.sleep(500);
+                                                        driver.manage().getCookies().then(function (cookies) {
+                                                            for (var i in cookies) {
+                                                                if (i == 0) {
+                                                                    interparkCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                                } else {
+                                                                    interparkCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                                }
+                                                            }
+                                                            driver.then(function () {
+                                                                db.pool.getConnection(function (err, conn) {
+                                                                    if (err) {
+                                                                        return;
+                                                                    }
+                                                                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'interpark'";
+                                                                    conn.query(sql, [interparkCookies, email], function (err, rows, fields) {
+                                                                        conn.release();
+                                                                        if (err) console.log("err");
+                                                                        else callback(null, "update interpark cookies");
+                                                                    });
+                                                                });
+
+                                                            });
+                                                            driver.quit();
+                                                        }, function (err) {
+                                                            console.log(err);
+                                                            driver.quit();
                                                         });
                                                     });
-
-                                                });
-                                                driver.quit();
-                                            }, function (err) {
-                                                console.log(err);
-                                                driver.quit();
+                                                },
+                                                function(err){
+                                                    console.log(err);
+                                                    driver.quit();
                                             });
+                                        }, function (err) {
+                                            console.log(err);
+                                            driver.quit();
                                         });
                                     }, function (err) {
                                         console.log(err);
@@ -503,11 +530,11 @@ var executeFuncForScheduling = function (email) {
                                 }, function (err) {
                                     console.log(err);
                                     driver.quit();
-                                });
+                                })
                             }, function (err) {
                                 console.log(err);
                                 driver.quit();
-                            })
+                            });
                         }, function (err) {
                             console.log(err);
                             driver.quit();
@@ -531,42 +558,50 @@ var executeFuncForScheduling = function (email) {
                     const driver = new webdriver.Builder().forBrowser('phantomjs').build();
                     driver.then(function () {
                         driver.manage().timeouts().implicitlyWait(3000);
-                        driver.get('https://signinssl.gmarket.co.kr/login/login?prmtdisp=Y&url=http://escrow.gmarket.co.kr/ko/cart');
-                        driver.findElement(By.id('id')).then(function (el) {
-                            el.sendKeys(websiteList['gmarket'].websiteId);
-                            driver.findElement(By.id('pwd')).then(function (el) {
-                                el.sendKeys(websiteList['gmarket'].websitePw);
-                                driver.findElement(By.css('#mem_login > div.login-input > div.btn-login > a > input[type="image"]')).then(function (el) {
-                                    el.click();
-                                    driver.then(function () {
-                                        driver.sleep(100);
-                                        driver.manage().getCookies().then(function (cookies) {
-                                            for (var i in cookies) {
-                                                if (i == 0) {
-                                                    gmarketCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                } else {
-                                                    gmarketCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
-                                                }
-                                            }
+                        driver.get('https://signinssl.gmarket.co.kr/login/login?prmtdisp=Y&url=http://escrow.gmarket.co.kr/ko/cart').then(function () {
+                            driver.findElement(By.id('id')).then(function (el) {
+                                el.sendKeys(websiteList['gmarket'].websiteId);
+                                driver.findElement(By.id('pwd')).then(function (el) {
+                                    el.sendKeys(websiteList['gmarket'].websitePw);
+                                    driver.findElement(By.css('#mem_login > div.login-input > div.btn-login > a > input[type="image"]')).then(function (el) {
+                                        el.click().then(function(){
                                             driver.then(function () {
-                                                db.pool.getConnection(function (err, conn) {
-                                                    if (err) {
-                                                        return;
+                                                driver.sleep(100);
+                                                driver.manage().getCookies().then(function (cookies) {
+                                                    for (var i in cookies) {
+                                                        if (i == 0) {
+                                                            gmarketCookies += cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                        } else {
+                                                            gmarketCookies += ';' + cookies[i]['name'] + '=' + cookies[i]['value'];
+                                                        }
                                                     }
-                                                    var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'gmarket'";
-                                                    conn.query(sql, [gmarketCookies, email], function (err, rows, fields) {
-                                                        conn.release();
-                                                        if (err) console.log("err");
-                                                        else callback(null, "update gmarket cookies");
-                                                    });
-                                                });
+                                                    driver.then(function () {
+                                                        db.pool.getConnection(function (err, conn) {
+                                                            if (err) {
+                                                                return;
+                                                            }
+                                                            var sql = "update tbl_logindata set cookies = ? where email = ? and website = 'gmarket'";
+                                                            conn.query(sql, [gmarketCookies, email], function (err, rows, fields) {
+                                                                conn.release();
+                                                                if (err) console.log("err");
+                                                                else callback(null, "update gmarket cookies");
+                                                            });
+                                                        });
 
-                                            });
-                                            driver.quit();
-                                        }, function (err) {
+                                                    });
+                                                    driver.quit();
+                                                }, function (err) {
+                                                    console.log(err);
+                                                    driver.quit();
+                                                })
+                                            });    
+                                        },function(err){
                                             console.log(err);
                                             driver.quit();
-                                        })
+                                        });
+                                    }, function (err) {
+                                        console.log(err);
+                                        driver.quit();
                                     });
                                 }, function (err) {
                                     console.log(err);
@@ -575,11 +610,12 @@ var executeFuncForScheduling = function (email) {
                             }, function (err) {
                                 console.log(err);
                                 driver.quit();
-                            });
+                            })
                         }, function (err) {
                             console.log(err);
                             driver.quit();
-                        })
+                        });
+
                     }, function (err) {
                         console.log("err - setCookiesForScheduling - gmarket ::", err);
                         callback(null, "update gmarket cookies Err!!");
@@ -598,8 +634,10 @@ var executeFuncForScheduling = function (email) {
         if (err) console.log("err");
         else {
             async.parallel(task4, function (err, result) {
-                if(err){console.log(err)}
-                else{
+                if (err) {
+                    console.log(err);
+                }
+                else {
                 }
             });
         }
@@ -619,128 +657,192 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                 driver.manage().timeouts().implicitlyWait(3000);
                 switch (loginData.website) {
                     case 'gmarket':
-                        driver.get('https://signinssl.gmarket.co.kr/login/login?prmtdisp=Y&url=http://escrow.gmarket.co.kr/ko/cart');
-                        driver.findElement(By.id('id')).then(function (el) {
-                            el.sendKeys(loginData.websiteId);
-                            driver.findElement(By.id('pwd')).then(function (el) {
-                                el.sendKeys(loginData.websitePw);
-                                driver.findElement(By.css('#mem_login > div.login-input > div.btn-login > a > input[type="image"]')).then(function (el) {
-                                    el.click();
-                                    driver.getCurrentUrl().then(function (url) {
-                                        if (url == "https://signinssl.gmarket.co.kr/LogIn/LogIn?member_type=MEM&failCheck=1&url=http://escrow.gmarket.co.kr/ko/cart") {
-                                            loginNext = false;
-                                        }
-                                    }, function (err) {
-                                        console.log(err);
-                                        driver.quit();
-                                    });
-                                }, function (err) {
-                                    console.log(err);
-                                    driver.quit();
-                                });
-                            }, function (err) {
-                                console.log(err);
-                                driver.quit();
-                            });
-                        }, function (err) {
-                            console.log(err);
-                            driver.quit();
-                        });
-
-                        break;
-                    case '11st':
-                        driver.get('https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&xfrom=');
-                        driver.findElement(By.id('loginName')).then(function (el) {
-                            el.sendKeys(loginData.websiteId);
-                            driver.findElement(By.id('passWord')).then(function (el) {
-                                el.sendKeys(loginData.websitePw);
-                                driver.findElement(By.css('#memLogin > div.save_idW > input')).then(function (el) {
-                                    el.click();
-                                    driver.getCurrentUrl().then(function (url) {
-                                        if (url == "https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&errorCode=001&age19=") {
-                                            loginNext = false;
-                                        }
-                                    }, function (err) {
-                                        console.log(err);
-                                        driver.quit();
-                                    });
-                                }, function (err) {
-                                    console.log(err);
-                                    driver.quit();
-                                });
-                            }, function (err) {
-                                console.log(err);
-                                driver.quit();
-                            });
-                        }, function (err) {
-                            console.log(err);
-                            driver.quit();
-                        });
-
-                        break;
-                    case 'interpark':
-                        driver.get('http://www.interpark.com/order/cartlist.do?_method=cartList&logintgt=cart&wid1=kang&wid2=cartlist&wid3=02');
-                        driver.switchTo().frame('subIframe').then(function(){
-                            driver.findElement(By.id('memId')).then(function(el){
-                                el.sendKeys(loginData.websiteId);
-                                driver.findElement(By.id('pwdObj')).then(function(el){
-                                    el.sendKeys(loginData.websitePw);
-                                    driver.findElement(By.css('#login_type1 > table > tbody > tr:nth-child(1) > td:nth-child(2) > img')).then(function(el){
-                                        el.click();
-                                        driver.findElement(By.css('span.cart')).getText().then(function () {
-                                            loginNext = true;
-                                        }).catch(function (err) {
-                                            console.log("이거 찍히면 말좀해줘");
-                                            console.log(err);
-                                            loginNext = false;
-                                        });
-                                    },function(err){
-                                        console.log(err);
-                                        driver.quit();
-                                    })
-                                },function(err){
-                                    console.log(err);
-                                    driver.quit();
-                                })
-                            },function(err){
-                                console.log(err);
-                                driver.quit();
-                            })
-                        },function(err){
-                            console.log(err);
-                            driver.quit();
-                        });
-                        break;
-
-                    case 'auction':
-                        driver.get('https://memberssl.auction.co.kr/authenticate/?url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab').then(function(){
-                            driver.findElement(By.id('id')).then(function(el){
-                                el.sendKeys(loginData.websiteId);
-                                driver.findElement(By.id('password')).then(function(el){
-                                    el.sendKeys(loginData.websitePw);
-                                    driver.findElement(By.id('Image1')).then(function(el){
-                                        el.click();
-                                        driver.getCurrentUrl().then(function (url) {
-                                            if (url == "https://memberssl.auction.co.kr/Authenticate/default.aspx?return_value=-1&SELLER=&url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab&loginType=0&loginUIType=") {
-                                                loginNext = false;
-                                            }
+                        driver.get('https://signinssl.gmarket.co.kr/login/login?prmtdisp=Y&url=http://escrow.gmarket.co.kr/ko/cart').then(function () {
+                            driver.findElement(By.id('id')).then(function (el) {
+                                el.sendKeys(loginData.websiteId).then(function(){
+                                    driver.findElement(By.id('pwd')).then(function (el) {
+                                        el.sendKeys(loginData.websitePw).then(function(){
+                                            driver.findElement(By.css('#mem_login > div.login-input > div.btn-login > a > input[type="image"]')).then(function (el) {
+                                                el.click().then(function(){
+                                                    driver.getCurrentUrl().then(function (url) {
+                                                        if (url == "https://signinssl.gmarket.co.kr/LogIn/LogIn?member_type=MEM&failCheck=1&url=http://escrow.gmarket.co.kr/ko/cart") {
+                                                            loginNext = false;
+                                                        }
+                                                    }, function (err) {
+                                                        console.log(err);
+                                                        driver.quit();
+                                                    });    
+                                                },function(err){
+                                                    console.log(err);
+                                                    driver.quit();
+                                                });
+                                            }, function (err) {
+                                                console.log(err);
+                                                driver.quit();
+                                            });    
                                         },function(err){
                                             console.log(err);
                                             driver.quit();
                                         });
-                                    },function(err){
+                                        
+                                    }, function (err) {
                                         console.log(err);
                                         driver.quit();
-                                    })
+                                    });
                                 },function(err){
                                     console.log(err);
                                     driver.quit();
-                                })
-                            },function(err){
+                                });
+                            }, function (err) {
                                 console.log(err);
                                 driver.quit();
                             });
-                        },function(err){
+                        }, function (err) {
+                            console.log(err);
+                            driver.quit();
+                        });
+
+
+                        break;
+                    case '11st':
+                        driver.get('https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&xfrom=').then(function () {
+                            driver.findElement(By.id('loginName')).then(function (el) {
+                                el.sendKeys(loginData.websiteId).then(function(){
+                                    driver.findElement(By.id('passWord')).then(function (el) {
+                                        el.sendKeys(loginData.websitePw).then(function(){
+                                            driver.findElement(By.css('#memLogin > div.save_idW > input')).then(function (el) {
+                                                el.click().then(function(){
+                                                    driver.getCurrentUrl().then(function (url) {
+                                                        if (url == "https://login.11st.co.kr/login/Login.tmall?returnURL=http%3A%2F%2Fbuy.11st.co.kr%2Fcart%2FCartAction.tmall%3Fmethod%3DgetCartList&errorCode=001&age19=") {
+                                                            loginNext = false;
+                                                        }
+                                                    }, function (err) {
+                                                        console.log(err);
+                                                        driver.quit();
+                                                    });
+                                                },function(err){
+                                                    console.log(err);
+                                                    driver.quit();
+                                                });
+                                            }, function (err) {
+                                                console.log(err);
+                                                driver.quit();
+                                            });
+                                        },function(err){
+                                            console.log(err);
+                                            driver.quit();
+                                        });
+                                    }, function (err) {
+                                        console.log(err);
+                                        driver.quit();
+                                    });
+                                },function(err){
+                                    console.log(err);
+                                    driver.quit();
+                                });
+                            }, function (err) {
+                                console.log(err);
+                                driver.quit();
+                            });
+                        }, function (err) {
+                            console.log(err);
+                            driver.quit();
+                        });
+
+
+                        break;
+                    case 'interpark':
+                        driver.get('http://www.interpark.com/order/cartlist.do?_method=cartList&logintgt=cart&wid1=kang&wid2=cartlist&wid3=02').then(function () {
+                            driver.switchTo().frame('subIframe').then(function () {
+                                driver.findElement(By.id('memId')).then(function (el) {
+                                    el.sendKeys(loginData.websiteId).then(function(){
+                                        driver.findElement(By.id('pwdObj')).then(function (el) {
+                                            el.sendKeys(loginData.websitePw).then(function(){
+                                                driver.findElement(By.css('#login_type1 > table > tbody > tr:nth-child(1) > td:nth-child(2) > img')).then(function (el) {
+                                                    el.click().then(function(){
+                                                        driver.findElement(By.css('span.cart')).getText().then(function () {
+                                                            loginNext = true;
+                                                        }).catch(function (err) {
+                                                            console.log("이거 찍히면 말좀해줘");
+                                                            console.log(err);
+                                                            loginNext = false;
+                                                        });
+                                                    },function(err){
+                                                        console.log(err);
+                                                        driver.quit();
+                                                    });
+                                                }, function (err) {
+                                                    console.log(err);
+                                                    driver.quit();
+                                                })
+                                            },function(err){
+                                                console.log(err);
+                                                driver.quit();
+                                            });
+                                        }, function (err) {
+                                            console.log(err);
+                                            driver.quit();
+                                        })
+                                    },function(err){
+                                        console.log(err);
+                                        driver.quit();
+                                    });
+                                }, function (err) {
+                                    console.log(err);
+                                    driver.quit();
+                                })
+                            }, function (err) {
+                                console.log(err);
+                                driver.quit();
+                            });
+                        }, function (err) {
+                            console.log(err);
+                            driver.quit();
+                        });
+
+                        break;
+
+                    case 'auction':
+                        driver.get('https://memberssl.auction.co.kr/authenticate/?url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab').then(function () {
+                            driver.findElement(By.id('id')).then(function (el) {
+                                el.sendKeys(loginData.websiteId).then(function(){
+                                    driver.findElement(By.id('password')).then(function (el) {
+                                        el.sendKeys(loginData.websitePw).then(function(){
+                                            driver.findElement(By.id('Image1')).then(function (el) {
+                                                el.click().then(function(){
+                                                    driver.getCurrentUrl().then(function (url) {
+                                                        if (url == "https://memberssl.auction.co.kr/Authenticate/default.aspx?return_value=-1&SELLER=&url=http%3a%2f%2fbuy.auction.co.kr%2fbuy%2fA2014%2fCart%2fCart.aspx%3ffrm%3dhometab&loginType=0&loginUIType=") {
+                                                            loginNext = false;
+                                                        }
+                                                    }, function (err) {
+                                                        console.log(err);
+                                                        driver.quit();
+                                                    });
+                                                },function(err){
+                                                    console.log(err);
+                                                    driver.quit();
+                                                });
+                                            }, function (err) {
+                                                console.log(err);
+                                                driver.quit();
+                                            });
+                                        },function(err){
+                                            console.log(err);
+                                            driver.quit();
+                                        });
+                                    }, function (err) {
+                                        console.log(err);
+                                        driver.quit();
+                                    });
+                                },function(err){
+                                    console.log(err);
+                                    driver.quit();
+                                });
+                            }, function (err) {
+                                console.log(err);
+                                driver.quit();
+                            });
+                        }, function (err) {
                             console.log(err);
                             driver.quit();
                         });
@@ -766,7 +868,7 @@ var setCookiesAtAddLoginData = function (loginData, CBfunc) {
                             callback(null, loginData, webCookies);
                             driver.quit();
                         });
-                    },function(err){
+                    }, function (err) {
                         console.log(err);
                         driver.quit();
                     })

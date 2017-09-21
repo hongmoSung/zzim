@@ -19,8 +19,6 @@ var pool = mysql.createPool({
     debug: false
 });
 
-//console.log('데이터베이스 연결 스레드 아이디 : ' + conn.threadId);
-//console.log('실행 대상 SQL : ' + exec.sql);
 
 // site 추가
 function addSite(data, callback) {
