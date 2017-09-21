@@ -474,7 +474,7 @@ function track(url, callback) {
 
                     switch (cmpnyc) {
                         case 'EE128':
-                            product.pUrl = 'item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
+                            product.pUrl = 'http://item.gmarket.co.kr/DetailView/Item.asp?goodscode=' + link_pcode;
                             flag = true;
                             break;
                         case 'TH201':
