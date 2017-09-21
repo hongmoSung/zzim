@@ -48,13 +48,13 @@ function search(url, func) {
                     }
                     callback(null, null, title);
                 } else {
-                    callback(null, err , null);
+                    callback(null, err, null);
                 }
             });
         },
         function (err, title, callback) {
             if (err) {
-                callback(null, err , null);
+                callback(null, err, null);
             } else {
                 var form = {
                     "q": 'site:danawa.com 가격비교 ' + title
@@ -83,7 +83,7 @@ function search(url, func) {
                             callback(null, null, url);
                         }
                     } else {
-                        callback(null, err , null);
+                        callback(null, err, null);
                     }
                 });
             }
@@ -107,7 +107,7 @@ function search(url, func) {
                         var img = $('#img_areas > a > img').attr('src');
                         var itemName = $('p.goods_title').text().trim();
                         var itemPrice = $('.big_price').text().trim();
-                        img = img.replace("http://","https://");
+                        img = img.replace("http://", "https://");
                         var item = {
                             'err': false,
                             'picUrl': img,
@@ -158,7 +158,7 @@ function reSearch(pName, func) {
                     body = iconv.decode(strContents, 'utf-8').toString();
                     $ = cheerio.load(body);
                     url = $('cite._Rm').html();
-                    if(url == null){
+                    if (url == null) {
                         callback(null, err);
                     }
                     else if (url.indexOf('prod') == -1) {
@@ -193,7 +193,7 @@ function reSearch(pName, func) {
                         $ = cheerio.load(body);
 
                         var img = $('#img_areas > a > img').attr('src');
-                        img = img.replace("http://","https://");
+                        img = img.replace("http://", "https://");
                         var itemName = $('p.goods_title').text().trim();
                         var itemPrice = $('.big_price').text().trim();
                         var item = {
@@ -238,7 +238,7 @@ function crawlingForScheduling(url, callback) {
             var pName = $('p.goods_title').text().trim();
             var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
             var picUrl = $('#img_areas > a > img').attr('src');
-            picUrl = picUrl.replace("http://","https://");
+            picUrl = picUrl.replace("http://", "https://");
             var crawlingUrl = url;
 
             var mainSite = {
@@ -376,6 +376,7 @@ function startTracking(data, func) {
                                 // func(msg);
                             } else {
                                 if (result) {
+                                    console.log(result);
                                     db.selectProduct(pName, function (err, rows) {
                                         if (err) {
                                             // func(msg);
@@ -450,9 +451,9 @@ function track(url, callback) {
                     var pName = $('p.goods_title').text().trim();
                     var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
                     var picUrl = $('#img_areas > a > img').attr('src');
-                    picUrl = picUrl.replace("http://","https://");
+                    picUrl = picUrl.replace("http://", "https://");
                     var crawlingUrl = url;
-                    console.log('url :::::::::::::::', pUrl);
+                    console.log('pUrl :::::::::::::::', pUrl);
                     cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
 
                     var b = pUrl.substr(pUrl.indexOf('link_pcode') + 'link_pcode'.length + 1).split('&');
@@ -501,11 +502,10 @@ function track(url, callback) {
                             product.pUrl = 'http://shopping.interpark.com/product/productInfo.do?prdNo=' + link_pcode;
                             flag = true;
                             break;
-                        default:
                     }
                     callback(null, null, cmpnyc, flag)
                 } else {
-                    callback(null, err);
+                    callback(null, err, null, null);
                 }
             });
 
@@ -515,18 +515,19 @@ function track(url, callback) {
                 callback(err);
             } else {
                 if (!flag) {
-                  var data = {
-                              'url': url,
-                              'pcode': pcode,
-                              'cmpnyc': cmpnyc,
-                              'link_pcode': link_pcode
-                          }
+                    var data = {
+                        'url': url,
+                        'pcode': pcode,
+                        'cmpnyc': cmpnyc,
+                        'link_pcode': link_pcode
+                    }
                     getSiteUrlAtStartTracking(data, function (err, result) {
                         if (err) {
                             console.log("getSiteUrlAtStartTracking :: error");
                             callback(err);
                         } else {
                             product.pUrl = result;
+                            console.log("bbbbb:",product.pUrl);
                             callback(null, product);
                         }
                     });
@@ -574,15 +575,15 @@ function trackScheduling() {
                                                 updateProductAtScheduling(product);
                                             } else {
 
-                                              getSiteUrlAtTrackScheduling(product, function (err, result) {
-                                                if (err) {
-                                                  console.log('getSiteUrlAtTrackScheduling err');
-                                                } else {
-                                                  if (result) {
-                                                    console.log('getSiteUrlAtTrackScheduling success');
-                                                  }
-                                                }
-                                              });
+                                                getSiteUrlAtTrackScheduling(product, function (err, result) {
+                                                    if (err) {
+                                                        console.log('getSiteUrlAtTrackScheduling err');
+                                                    } else {
+                                                        if (result) {
+                                                            console.log('getSiteUrlAtTrackScheduling success');
+                                                        }
+                                                    }
+                                                });
                                             }
                                         } else {
                                             //console.log('가격변동 없음', product.pNo);
@@ -656,26 +657,27 @@ function getSiteUrlAtStartTracking(data, callback) {
     var driver = new webdriver.Builder().forBrowser('chrome').build();
 
     driver.then(function () {
-        driver.get(data.url).then(function(){
+        driver.get(data.url).then(function () {
             driver.findElement(By.css('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)')).then(function (el) {
                 el.click();
-                driver.getAllWindowHandles().then(function(allWindows){
+                driver.getAllWindowHandles().then(function (allWindows) {
                     driver.switchTo().window(allWindows[allWindows.length - 1]);
                     driver.sleep(3500);
                     return driver.getCurrentUrl();
-                },function(err){
+                }, function (err) {
                     console.log(err);
                     driver.quit();
                 })
-                .then(function (currentUrl) {
-                  callback(null, currentUrl);
-                });
+                    .then(function (currentUrl) {
+                        console.log("asdasdasd::", currentUrl);
+                        callback(null, currentUrl);
+                    });
                 driver.quit();
-            },function(err){
+            }, function (err) {
                 console.log(err);
                 driver.quit();
             });
-        },function(err){
+        }, function (err) {
             console.log(err);
             driver.quit();
         });
@@ -694,26 +696,26 @@ function getSiteUrlAtTrackScheduling(data, callback) {
             .then(function () {
                 driver.sleep(3500);
                 return driver.getCurrentUrl();
-            },function(err){
+            }, function (err) {
                 console.log(err);
                 driver.quit();
             })
             .then(function (currentUrl) {
 
-              data.pUrl = currentUrl;
-              db.updateProduct(data, function (err, result) {
-                if (err) {
-                  console.log('updateProduct err');
-                  callback(err)
-                } else {
-                  if (result) {
-                    console.log('getSiteUrlAtTrackScheduling 성공');
-                    callback(null, result);
-                  }
-                }
-              });
-              driver.quit();
-            },function(err){
+                data.pUrl = currentUrl;
+                db.updateProduct(data, function (err, result) {
+                    if (err) {
+                        console.log('updateProduct err');
+                        callback(err)
+                    } else {
+                        if (result) {
+                            console.log('getSiteUrlAtTrackScheduling 성공');
+                            callback(null, result);
+                        }
+                    }
+                });
+                driver.quit();
+            }, function (err) {
                 console.log(err);
                 driver.quit();
             });
