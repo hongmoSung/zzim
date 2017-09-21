@@ -193,6 +193,7 @@ function reSearch(pName, func) {
                         $ = cheerio.load(body);
 
                         var img = $('#img_areas > a > img').attr('src');
+                        img = img.replace("http://","https://");
                         var itemName = $('p.goods_title').text().trim();
                         var itemPrice = $('.big_price').text().trim();
                         var item = {
@@ -237,6 +238,7 @@ function crawlingForScheduling(url, callback) {
             var pName = $('p.goods_title').text().trim();
             var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
             var picUrl = $('#img_areas > a > img').attr('src');
+            picUrl = picUrl.replace("http://","https://");
             var crawlingUrl = url;
 
             var mainSite = {
@@ -448,6 +450,7 @@ function track(url, callback) {
                     var pName = $('p.goods_title').text().trim();
                     var pUrl = $('#block_top_blog > div.goods_top_area > div.goods_left_area > div.goods_detail_area > div.goods_buy_line > a:nth-child(2)').attr('href');
                     var picUrl = $('#img_areas > a > img').attr('src');
+                    picUrl = picUrl.replace("http://","https://");
                     var crawlingUrl = url;
                     console.log('url :::::::::::::::', pUrl);
                     cmpnyc = pUrl.substr(pUrl.indexOf('cmpnyc') + 'cmpnyc'.length + 1, 5);
