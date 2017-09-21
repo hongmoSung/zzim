@@ -515,32 +515,19 @@ function track(url, callback) {
                 callback(err);
             } else {
                 if (!flag) {
-                    db.selectSite(cmpnyc, function (err, rows) {
-                        if (rows) {
-                            cmpnyUrl = rows[0].cmpnyUrl;
-                            if (link_pcode != '') {
-                                product.pUrl = cmpnyUrl + '?pd_no=' + link_pcode;
-                            } else {
-                                product.pUrl = cmpnyUrl + '?nProdCode=' + pcode;
-                            }
-                            callback(null, product);
+                  var data = {
+                              'url': url,
+                              'pcode': pcode,
+                              'cmpnyc': cmpnyc,
+                              'link_pcode': link_pcode
+                          }
+                    getSiteUrlAtStartTracking(data, function (err, result) {
+                        if (err) {
+                            console.log("getSiteUrlAtStartTracking :: error");
+                            callback(err);
                         } else {
-                            var data = {
-                                'url': url,
-                                'pcode': pcode,
-                                'cmpnyc': cmpnyc,
-                                'link_pcode': link_pcode
-                            }
-                            console.log('selenium 실행');
-                            getSiteUrlAtStartTracking(data, function (err, result) {
-                                if (err) {
-                                    console.log("getSiteUrlAtStartTracking :: error");
-                                    callback(err);
-                                } else {
-                                    product.pUrl = result;
-                                    callback(null, product);
-                                }
-                            });
+                            product.pUrl = result;
+                            callback(null, product);
                         }
                     });
                 } else {
@@ -580,43 +567,25 @@ function trackScheduling() {
                                     if (err) {
                                         console.log('addHistory err::::::::::::::');
                                     } else {
-                                        // msg = '스케쥴링 성공';
                                         if (a[i].pLowest != product.pLowest) {
                                             var cmpnyc = product.cmpnyc;
                                             if (cmpnyc == 'EE128' || cmpnyc == 'TH201' || cmpnyc == 'EE715' || cmpnyc == 'TN920' || cmpnyc == 'TN729' || cmpnyc == 'ED910') {
                                                 console.log('대기업 가격변동,,,, :::::::  ', product.pNo);
                                                 updateProductAtScheduling(product);
                                             } else {
-                                                db.selectSite(cmpnyc, function (err, rows) {
-                                                    console.log('가격변동 중 selenium 대상이 아닌것,,,, :::::::  ', product.pNo);
-                                                    if (err) {
-                                                        console.log('selectSite err::::::::::::::::::::::', cmpnyc);
-                                                    } else {
-                                                        if (rows) {
-                                                            console.log('rows::::', rows);
-                                                            rows.forEach(function (row, i) {
-                                                                product.pUrl = row.cmpnyUrl + '?nProdCode=' + product.pcode;
-                                                            });
-                                                            updateProductAtScheduling(product);
-                                                        } else {
-                                                            console.log('selenium 대상,,,, :::::::  ', product.pNo);
-                                                            getSiteUrlAtTrackScheduling(product, function (err, result) {
-                                                                if (err) {
-                                                                    console.log('getSiteUrlAtTrackScheduling err');
-                                                                } else {
-                                                                    if (result) {
-                                                                        console.log(result);
-                                                                        console.log('getSiteUrlAtTrackScheduling success');
-                                                                    }
-                                                                }
-                                                            })
-                                                        }
-                                                    }
-                                                });
+
+                                              getSiteUrlAtTrackScheduling(product, function (err, result) {
+                                                if (err) {
+                                                  console.log('getSiteUrlAtTrackScheduling err');
+                                                } else {
+                                                  if (result) {
+                                                    console.log('getSiteUrlAtTrackScheduling success');
+                                                  }
+                                                }
+                                              });
                                             }
                                         } else {
                                             //console.log('가격변동 없음', product.pNo);
-                                            // msg = '스케쥴링 성공'
                                         }
                                     }
                                 });
@@ -698,52 +667,9 @@ function getSiteUrlAtStartTracking(data, callback) {
                     console.log(err);
                     driver.quit();
                 })
-                    .then(function (currentUrl) {
-                        var cmpnyUrl = currentUrl.substr(0, currentUrl.indexOf('?'));
-                        // var pUrl = '';
-                        // var pUrl = cmpnyUrl + '?nProdCode=' + data.pcode;
-                        // var pUrl = cmpnyUrl + '?pd_no=' + data.pcode;
-
-                        if (data.link_pcode != -1) {
-                            console.log('link_pcode가 있습니다.');
-                        } else {
-                            console.log('link_pcode가 없습니다.');
-                        }
-
-                        if (currentUrl.indexOf('pd_no') != -1) {
-                            console.log('pd_no');
-                            var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                            var pd_no = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                            data.pUrl = cmpnyUrl + '?pd_no=' + pd_no;
-                        } else if (currentUrl.indexOf('pcode') != -1) {
-                            console.log('pcode');
-                            var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                            var pcode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                            data.pUrl = cmpnyUrl + '?pcode=' + pcode;
-                        } else if (currentUrl.indexOf('nProdCode') != -1) {
-                            console.log('nProdCode');
-                            var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                            var nProdCode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                            data.pUrl = cmpnyUrl + '?nProdCode=' + nProdCode;
-                        }
-                        var site = {
-                            'cmpnyc': data.cmpnyc,
-                            'cmpnyUrl': cmpnyUrl
-                        }
-                        db.addSite(site, function (err, result) {
-                            if (err) {
-                                console.log('insert addSite err::::::::::::::');
-                                callback("err");
-                            } else {
-                                if (result) {
-                                    console.log('insert addSite 성공.....', data);
-                                    callback(null, data.pUrl);
-                                } else {
-                                    callback("err");
-                                }
-                            }
-                        });
-                    });
+                .then(function (currentUrl) {
+                  callback(null, currentUrl);
+                });
                 driver.quit();
             },function(err){
                 console.log(err);
@@ -773,51 +699,20 @@ function getSiteUrlAtTrackScheduling(data, callback) {
                 driver.quit();
             })
             .then(function (currentUrl) {
-                if (data.link_pcode != -1) {
-                    console.log('link_pcode가 있습니다.');
-                } else {
-                    console.log('link_pcode가 없습니다.');
-                }
 
-                if (currentUrl.indexOf('pd_no') != -1) {
-                    console.log('pd_no');
-                    var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                    var pd_no = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                    data.pUrl = cmpnyUrl + '?pd_no=' + pd_no;
-                } else if (currentUrl.indexOf('pcode') != -1) {
-                    console.log('pcode');
-                    var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                    var pcode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                    data.pUrl = cmpnyUrl + '?pcode=' + pcode;
-                } else if (currentUrl.indexOf('nProdCode') != -1) {
-                    console.log('nProdCode');
-                    var d = currentUrl.substr(currentUrl.indexOf('?') + 1, currentUrl.length).split('&');
-                    var nProdCode = d[0].substr(d[0].indexOf('=') + 1, d[0].length);
-                    data.pUrl = cmpnyUrl + '?nProdCode=' + nProdCode;
+              data.pUrl = currentUrl;
+              db.updateProduct(data, function (err, result) {
+                if (err) {
+                  console.log('updateProduct err');
+                  callback(err)
+                } else {
+                  if (result) {
+                    console.log('getSiteUrlAtTrackScheduling 성공');
+                    callback(null, result);
+                  }
                 }
-                var site = {
-                    'cmpnyc': data.cmpnyc,
-                    'cmpnyUrl': cmpnyUrl
-                }
-                db.addSite(site, function (err, result) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        console.log('insert addSite 성공.....');
-                        db.updateProduct(data, function (err, result) {
-                            if (err) {
-                                console.log('updateProduct err');
-                                callback(err)
-                            } else {
-                                if (result) {
-                                    console.log('getSiteUrlAtTrackScheduling 성공');
-                                    callback(null, result);
-                                }
-                            }
-                        });
-                    }
-                });
-                driver.quit();
+              });
+              driver.quit();
             },function(err){
                 console.log(err);
                 driver.quit();
