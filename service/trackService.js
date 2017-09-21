@@ -107,6 +107,7 @@ function search(url, func) {
                         var img = $('#img_areas > a > img').attr('src');
                         var itemName = $('p.goods_title').text().trim();
                         var itemPrice = $('.big_price').text().trim();
+                        img = img.replace("http://","https://");
                         var item = {
                             'err': false,
                             'picUrl': img,
@@ -114,6 +115,7 @@ function search(url, func) {
                             'crawlingUrl': url,
                             'pLowest': itemPrice
                         };
+
                         callback(null, item);
                     } else {
                         callback(err);
@@ -156,7 +158,10 @@ function reSearch(pName, func) {
                     body = iconv.decode(strContents, 'utf-8').toString();
                     $ = cheerio.load(body);
                     url = $('cite._Rm').html();
-                    if (url.indexOf('prod') == -1) {
+                    if(url == null){
+                        callback(null, err);
+                    }
+                    else if (url.indexOf('prod') == -1) {
                         callback(null, err);
                     } else {
                         url = "http://" + url;
