@@ -11,10 +11,11 @@ var batch = function () {
         track.trackScheduling();
     });
 
-    cron.schedule('*/5 * * * *', function () {
+    cron.schedule('0 */1 * * *', function () {
         console.log('~~~~~~~~~~~~~~~cart.setCookiesForScheduling()~~~~~~~~~~~~~~~~', new Date().toFormat('YYYY-MM-DD HH24:MI:SS'));
         cart.setCookiesForScheduling();
     });
 }
+track.trackScheduling();
 
 module.exports.batch = batch;

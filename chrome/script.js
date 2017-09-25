@@ -22,6 +22,7 @@ chrome.tabs.getSelected(null, function (tab) {
                         $('#loginDiv').css('display', 'block');
                     } else {
                         chrome.storage.sync.set({email: result.email});
+                        gEmail = result.email;
                         console.log("크롬 x --> 세션 o --> 트랙ㄱㄱ");
                         startTrack();
                     }
@@ -234,7 +235,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
         alert("알림가격은 숫자만 입력 가능합니다.");
         return;
     }
-    ;
+
 
     var p = {
         'pName': pName,
@@ -243,6 +244,7 @@ $('#productInfo').on("click", "#trackBtn", function () {
         'email': gEmail,
         'pLowest': pLowest
     }
+    console.log(p);
 
     $.ajax({
         type: 'post',
