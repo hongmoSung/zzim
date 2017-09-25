@@ -12,7 +12,7 @@ chrome.tabs.getSelected(null, function (tab) {
                         "X-HTTP-Method-Override": "POST"
                     },
                     url: 'https://zzim.zz.am:/user/loginCheck'
-                    //url: 'http://localhost:9080/user/loginCheck'
+                    // url: 'http://localhost:9080/user/loginC/heck'
                 }).done(function (result) {
                     console.log("aaaa");
                     console.log(result);
@@ -320,12 +320,11 @@ $('#productInfo').on("click", "#goToLogin", function () {
 $(document).ajaxStart(function () {
     $("body").waitMe({
         effect: 'win8',
-        text: '기다려',
         bg: 'rgba(255,255,255,0.7)',
         color: '#000',
         source: 'img.svg'
     });
 })
-    .ajaxStop(function () {
-        $("body").waitMe("hide");
-    });
+.ajaxStop(function () {
+    $("body").waitMe("hide");
+});

@@ -574,16 +574,7 @@ function trackScheduling() {
                                                 console.log('대기업 가격변동,,,, :::::::  ', product.pNo);
                                                 updateProductAtScheduling(product);
                                             } else {
-
-                                                getSiteUrlAtTrackScheduling(product, function (err, result) {
-                                                    if (err) {
-                                                        console.log('getSiteUrlAtTrackScheduling err');
-                                                    } else {
-                                                        if (result) {
-                                                            console.log('getSiteUrlAtTrackScheduling success');
-                                                        }
-                                                    }
-                                                });
+                                                getSiteUrlAtTrackScheduling(product);
                                             }
                                         } else {
                                             //console.log('가격변동 없음', product.pNo);
@@ -689,7 +680,7 @@ function getSiteUrlAtStartTracking(data, callback) {
 
 }
 
-function getSiteUrlAtTrackScheduling(data, callback) {
+function getSiteUrlAtTrackScheduling(data) {
     var driver = new webdriver.Builder().forBrowser('chrome').build();
     driver.then(function () {
         driver.get(data.pUrl)
@@ -701,19 +692,8 @@ function getSiteUrlAtTrackScheduling(data, callback) {
                 driver.quit();
             })
             .then(function (currentUrl) {
-
                 data.pUrl = currentUrl;
-                db.updateProduct(data, function (err, result) {
-                    if (err) {
-                        console.log('updateProduct err');
-                        callback(err)
-                    } else {
-                        if (result) {
-                            console.log('getSiteUrlAtTrackScheduling 성공');
-                            callback(null, result);
-                        }
-                    }
-                });
+                updateProductAtScheduling(data);
                 driver.quit();
             }, function (err) {
                 console.log(err);
