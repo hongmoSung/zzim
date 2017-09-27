@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const request = require('request');
 var qs = require("querystring");
 var iconv = require('iconv-lite');
-var db = require('../ourDb.js');
+var db = require('../DB.js');
 var notification = require('./notificationService.js');
 require('date-utils');
 const webdriver = require('selenium-webdriver');
@@ -604,7 +604,7 @@ function updateProductAtScheduling(product) {
                     } else {
                         if (rows) {
                             var data = rows;
-                            db.selectToken(rows, function (err, rows) {
+                            db.selectToken(rows, product.pNo, function (err, rows) {
                                 if (err) {
                                     console.log('selectToken err');
                                 } else {
@@ -645,7 +645,7 @@ function updateProductAtScheduling(product) {
 
 function getSiteUrlAtStartTracking(data, callback) {
 
-    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    var driver = new webdriver.Builder().forBrowser('phantomjs').build();
 
     driver.then(function () {
         driver.get(data.url).then(function () {
@@ -681,7 +681,7 @@ function getSiteUrlAtStartTracking(data, callback) {
 }
 
 function getSiteUrlAtTrackScheduling(data) {
-    var driver = new webdriver.Builder().forBrowser('chrome').build();
+    var driver = new webdriver.Builder().forBrowser('phantomjs').build();
     driver.then(function () {
         driver.get(data.pUrl)
             .then(function () {

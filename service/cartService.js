@@ -1,4 +1,4 @@
-var db = require('../ourDb.js');
+var db = require('../DB.js');
 const async = require('async');
 var iconv = require('iconv-lite');
 const cheerio = require('cheerio');

@@ -1,12 +1,11 @@
 var nodemailer = require('nodemailer');
 var numeral = require('numeral');
-var sender = 'zzim_admin < admin@zzim-node.zz.am >';
+var sender = 'zzim_admin < asj473@hanmail.net >';
 var mailTitle = 'ZZIM 알림 메일입니다.';
 var request = require('request');
 
 function sendEmail(data, email, notifyPrice) {
-    console.log("bbbb::",data,email,notifyPrice);
-
+    console.log("이메일,알림가격:",email,notifyPrice);
     var pName = data.pName;
     var pLowest = numeral(data.pLowest).format('0,0');
     var pNo = data.pNo;
@@ -56,8 +55,8 @@ function sendEmail(data, email, notifyPrice) {
         port: 465,
         secure: true,
         auth: {
-            user: "comboy5419@hanmail.net",
-            pass: "dbehdrl0"
+            user: "asj473@hanmail.net",
+            pass: "bitbit11"
         }
     });
     transporter.sendMail(mailOptions, function (err, res) {
@@ -72,7 +71,6 @@ function sendEmail(data, email, notifyPrice) {
 
 
 function sendNotificationWeb(pName, pNo, token) {
-    console.log("aaaa::::", pName, pNo, token);
     var body = {
         "notification": {
             "title": "zzim알림",

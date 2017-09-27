@@ -224,14 +224,14 @@ function selectUser(email, callback) {
 }
 
 // 상품 조회
-function selectToken(data, callback) {
+function selectToken(data, pNo, callback) {
     pool.getConnection(function (err, conn) {
         if (err) {
             return;
         }
         var columns = ['pNo'];
         var tableName = 'tbl_product';
-        var sql = "select token, device from tbl_token where email in (";
+        var sql = "select token.* , tracking.* from tbl_token token, tbl_tracking tracking where tracking.email = token.email and pNo = ? and token.email in (";
 
         for (var i = 0; i < data.length; i++) {
             sql += "'" + data[i].email + "'";
@@ -241,7 +241,7 @@ function selectToken(data, callback) {
             }
             sql += ",";
         }
-        var exec = conn.query(sql, function (err, rows, fields) {
+        var exec = conn.query(sql,[pNo], function (err, rows, fields) {
             conn.release();
             if (err) {
                 callback(err, null);

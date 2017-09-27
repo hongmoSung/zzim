@@ -1,4 +1,4 @@
-var db = require('../ourDb.js');
+var db = require('../DB.js');
 
 function login(data, func) {
     var inputEmail = data.inputEmail;
